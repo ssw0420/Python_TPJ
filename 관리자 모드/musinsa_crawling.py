@@ -188,25 +188,25 @@ def next_page(page_num) :
     
     return page_num
 
-# 이미지 파일을 가져올 때는 페이지를 끝까지 내리는 것이 아니라, 특정 부분을 나눠서 내려야 정상적으로 로딩이  됨
-# def scroll_page() :
-#     body = browser.find_element(By.CSS_SELECTOR, 'body')
-#     for i in range (5):
-#         body.send_keys(Keys.PAGE_DOWN)
-#     time.sleep(1)
+#이미지 파일을 가져올 때는 페이지를 끝까지 내리는 것이 아니라, 특정 부분을 나눠서 내려야 정상적으로 로딩이 됨
+def scroll_page() :
+    body = browser.find_element(By.CSS_SELECTOR, 'body')
+    for i in range (50):
+        body.send_keys(Keys.PAGE_DOWN)
+    time.sleep(1)
 ##############################################################################################################################
 # 프로그램 작동
 
 browser = web_crawling()
 
 # 검색창 이용 여부 확인
-use_search = int(input('검색창 이용 (0 - 검색창 미사용 // 1 - 검색창 사용) :'))
+use_search = int(input('검색창 이용 (0 - 검색창 미사용 // 1 - 검색창 사용) : '))
 
 # 0 입력 시 전체 검색창에서 내용을 검색
 # 1 입력 시 상세 검색창에서 내용을 검색
 
 if use_search == 1:
-    search = int(input('검색창 선택 (0 - 전체 검색창 // 1 - 상세 검색창) :'))
+    search = int(input('검색창 선택 (0 - 전체 검색창 // 1 - 상세 검색창) : '))
     if search == 0:
         all_search_link()
     elif search == 1:
@@ -222,14 +222,13 @@ page_num = 4
 m_index = 1
 
 while(True):
-    page_num = next_page(page_num)
+    page_num = next_page(page_num) # 페이지 선택 후 다음 페이지로 이동
+    scroll_page() # 이미지를 불러오기 위해서는 화면 최하단으로 이동하는 것이 아니라 직접 스크롤 하면서 내려가야 함
 
     for i in range (1, 91):
-        m_brand = browser.find_elements(By.XPATH, f"//*[@id='searchList']/li[{i}]/div/div[2]/p[1]/a")
-        m_product = browser.find_elements(By.XPATH, f"//*[@id='searchList']/li[{i}]/div/div[2]/p[2]/a")
-        m_price = browser.find_elements(By.XPATH, f"//*[@id='searchList']/li[{i}]/div/div[2]/p[3]")
-
-        # scroll_page()
+        m_brand = browser.find_elements(By.XPATH, f"//*[@id='searchList']/li[{i}]/div/div[2]/p[1]/a") # 브랜드 호출
+        m_product = browser.find_elements(By.XPATH, f"//*[@id='searchList']/li[{i}]/div/div[2]/p[2]/a") # 상품 명 호출
+        m_price = browser.find_elements(By.XPATH, f"//*[@id='searchList']/li[{i}]/div/div[2]/p[3]") # 가격 호출
         
         print("=======================================================")
         
@@ -278,9 +277,7 @@ browser.close() # 종료
 
 
 
-
-
-
+##############################################################################################################################
 
 
 
