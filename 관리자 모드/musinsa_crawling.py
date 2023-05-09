@@ -88,6 +88,7 @@ view_all : 전체 제품 보기
 page_num : 페이지 클릭
 page : 페이지
 
+i : for 문 작동
 
 m_index : 고유 번호 (0)
 m_product : 제품 명 (베츠 어센틱 맨투맨 그레이)
@@ -187,6 +188,12 @@ def next_page(page_num) :
     
     return page_num
 
+# 이미지 파일을 가져올 때는 페이지를 끝까지 내리는 것이 아니라, 특정 부분을 나눠서 내려야 정상적으로 로딩이  됨
+# def scroll_page() :
+#     body = browser.find_element(By.CSS_SELECTOR, 'body')
+#     for i in range (5):
+#         body.send_keys(Keys.PAGE_DOWN)
+#     time.sleep(1)
 ##############################################################################################################################
 # 프로그램 작동
 
@@ -212,10 +219,36 @@ for i in range(more_search):
 
 # 다음 페이지 이동
 page_num = 4
+m_index = 1
+
 while(True):
     page_num = next_page(page_num)
+
+    for i in range (1, 91):
+        m_brand = browser.find_elements(By.XPATH, f"//*[@id='searchList']/li[{i}]/div/div[2]/p[1]/a")
+        m_product = browser.find_elements(By.XPATH, f"//*[@id='searchList']/li[{i}]/div/div[2]/p[2]/a")
+        m_price = browser.find_elements(By.XPATH, f"//*[@id='searchList']/li[{i}]/div/div[2]/p[3]")
+
+        # scroll_page()
+        
+        print("=======================================================")
+        
+        print(m_index, "번 제품")
+        m_index += 1
+        if len(m_brand) > 0:
+            print(m_brand[0].text)
+    
+        if len(m_product) > 0:
+            print(m_product[0].text)
+
+        if len(m_price) > 0:
+            print(m_price[0].text)
+        
+        print("=======================================================")
+
     if page_num == 0:
         break
+
 
 browser.close() # 종료
 
@@ -223,6 +256,34 @@ browser.close() # 종료
 ##############################################################################################################################
 
 # 미구현
+# for i in range (30):
+#     m_brand = browser.find_elements(By.XPATH, f"//*[@id='searchList']/li[{i}]/div/div[2]/p[1]/a")
+#     m_product = browser.find_elements(By.XPATH, f"//*[@id='searchList']/li[{i}]/div/div[2]/p[2]/a")
+
+#     print(m_brand[i])
+#     print(m_product[i])
+
+
+    # # 끝까지 스크롤
+    #     browser.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+
+    # # 대기 1초 (로딩으로 인해 알맞는 초 조절)
+    #     time.sleep(1)
+
+    # # 스크롤 길이 비교로 끝까지 갔는지 확인
+    #     new_height = browser.execute_script("return document.body.scrollHeight")
+    #     if new_height == last_height:
+    #         break
+    #     last_height = new_height
+
+
+
+
+
+
+
+
+
 # for i in range(1, 10):
 #     m_product = browser.find_elements(By.XPATH, "//*[@id='searchList']/li[{}]/div[4]/div[2]/p[2]/a".format(i)) # 제품 명을 가져옴
 #     if len(m_product) > 0:
