@@ -194,32 +194,41 @@ def scroll_page() :
     for i in range (50):
         body.send_keys(Keys.PAGE_DOWN)
     time.sleep(1)
+
+def start_musinsa():
+    # 프로그램 작동
+
+    browser = web_crawling()
+
+    # 검색창 이용 여부 확인
+    use_search = int(input('검색창 이용 (0 - 검색창 미사용 // 1 - 검색창 사용) : '))
+
+    # 0 입력 시 전체 검색창에서 내용을 검색
+    # 1 입력 시 상세 검색창에서 내용을 검색
+
+    if use_search == 1:
+        search = int(input('검색창 선택 (0 - 전체 검색창 // 1 - 상세 검색창) : '))
+        if search == 0:
+            all_search_link()
+        elif search == 1:
+            detail_search_link()
+
+    # 상세 검색창 작동
+    more_search = int(input('추가로 상세 검색할 횟수 입력 (0 - 미사용) : '))
+    for i in range(more_search):
+        detail_search_link()
+
+    # 다음 페이지 이동
+    page_num = 4
+    m_index = 1
+
+    return browser, page_num, m_index
+
+
 ##############################################################################################################################
 # 프로그램 작동
 
-browser = web_crawling()
-
-# 검색창 이용 여부 확인
-use_search = int(input('검색창 이용 (0 - 검색창 미사용 // 1 - 검색창 사용) : '))
-
-# 0 입력 시 전체 검색창에서 내용을 검색
-# 1 입력 시 상세 검색창에서 내용을 검색
-
-if use_search == 1:
-    search = int(input('검색창 선택 (0 - 전체 검색창 // 1 - 상세 검색창) : '))
-    if search == 0:
-        all_search_link()
-    elif search == 1:
-        detail_search_link()
-
-# 상세 검색창 작동
-more_search = int(input('추가로 상세 검색할 횟수 입력 (0 - 미사용) : '))
-for i in range(more_search):
-    detail_search_link()
-
-# 다음 페이지 이동
-page_num = 4
-m_index = 1
+browser, page_num, m_index = start_musinsa()
 
 while(True):
     page_num = next_page(page_num) # 페이지 선택 후 다음 페이지로 이동
