@@ -182,7 +182,7 @@ def next_page(page_num) :
 
     page_num += 1 # 페이지 숫자 증가
 
-    if page_num == 13: # 페이지 10(마지막 페이지)까지 이동 하였을 때 다음 페이지 목록으로 이동
+    if page_num == 14: # 페이지 10(마지막 페이지)까지 이동 하였을 때 다음 페이지 목록으로 이동
         page_num = 4 # page_num을 4로 초기화 시킴 (해당 페이지 목록의 1 페이지)
     
     return page_num
@@ -221,6 +221,7 @@ browser.close() # 종료
 
 
 ##############################################################################################################################
+
 # 미구현
 # for i in range(1, 10):
 #     m_product = browser.find_elements(By.XPATH, "//*[@id='searchList']/li[{}]/div[4]/div[2]/p[2]/a".format(i)) # 제품 명을 가져옴
