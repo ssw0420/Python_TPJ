@@ -3,8 +3,8 @@
 --- 프로그램 설명 --- => 임의로 수정 금지
 무신사 사이트에서 남성 옷에 대한 정보를 크롤링하여 csv 파일에 저장하는 프로그램
 
-각 사이트에서 브랜드, 제품명, (세일이 적용된) 가격, 상품 종류를 가져옴
-아우터는 프로젝트 진행 상황에 따라 추가
+브랜드, 제품명, (세일이 적용된) 가격, 상품 종류를 가져옴
+아우터는 프로젝트 진행 상황에 따라 추가 => 상의, 하의만 사용하기로 결정
 
 
 --- 상의 --- => 필요 시 업데이트 (2023.05.06)
@@ -59,7 +59,7 @@ usf-8에서 excel로 csv파일 확인 시 한글이 깨지면 encoding 할 때 u
 
 
 
---- 라이브러리 호출 ---  => 필요 시 업데이트 (2023.05.06)
+--- 라이브러리 호출 ---  => 필요 시 업데이트 (2023.05.20)
 
 pandas -> csv 파일 활용
 re -> 특수기호 같은 문자 필터링 => (필요 없을 시 삭제할 예정)
@@ -68,12 +68,16 @@ from selenium.webdriver.common.by import By -> 정보를 가져오기 위함
 from selenium.webdriver.common.keys import Keys -> 키 작동을 위함
 time -> 오류 방지를 위한 대기 시간
 from selenium import webdriver -> 크롬 작동
+codecs -> 인코딩 문제 해결
+os -> 이미지 저장 폴더 설정
+requests -> 이미지 파일 저장
+Image -> 이미지 파일 크기 조정
 """
 ##############################################################################################################################
 
 ##############################################################################################################################
 """
---- 변수 명 --- => 필요 시 업데이트 (2023.05.08)
+--- 변수 명 --- => 필요 시 업데이트 (2023.05.19)
 변수 추가 시, 식별 가능한 단어 사용
 
 browser : 사용할 링크 설정
@@ -88,6 +92,7 @@ view_all : 전체 제품 보기
 page_num : 페이지 클릭
 page : 페이지
 
+i : for 문 작동
 
 m_index : 고유 번호 (0)
 m_product : 제품 명 (베츠 어센틱 맨투맨 그레이)
@@ -97,6 +102,9 @@ m_sets : 상의 하의 구분
 m_type : 상품의 종류 (맨투맨, 셔츠, 티셔츠, 반바지, ...)
 m_style : 스타일 (댄디)
 m_weather : 계절 (봄)
+m_image : 이미지 파일
+m_link : 링크 호출
+product_link : 제품 상세 링크
 
 
 musinsa_df : 무신사 데이터프레임
@@ -117,18 +125,23 @@ import pandas as pd
 import time
 import csv
 import re
+import codecs
+import os
+import requests
+from PIL import Image
 
 ##############################################################################################################################
 # 함수 선언
-
  # 무신사 웹크롤링 프로그램 시작 함수
 def web_crawling() :
+    
     URL = input("링크 입력 : ") # 프로그램 상단에 표시된 URL 찾아서 입력
     options = webdriver.ChromeOptions() # 오류 방지
     options.add_experimental_option("excludeSwitches", ["enable-logging"])
     browser = webdriver.Chrome(options=options)
     browser.get(URL) # URL을 가져옴
     browser.implicitly_wait(5) # 인터넷 연결 시간 대기
+    browser.maximize_window() # 이미지 불러올 떄 전체화면을 해야 오류가 생기지 않음
 
     # 남성 옷으로 한정 -> 버튼 클릭
     man = browser.find_element(By.XPATH,"/html/body/div[2]/div[3]/div/button[2]")
@@ -137,10 +150,37 @@ def web_crawling() :
 
     return browser
 
+
+def start_m():
+    # 프로그램 작동
+
+    # 검색창 이용 여부 확인
+    use_search = int(input('검색창 이용 (0 - 검색창 미사용 // 1 - 검색창 사용) : '))
+
+    # 0 입력 시 전체 검색창에서 내용을 검색
+    # 1 입력 시 상세 검색창에서 내용을 검색
+
+    if use_search == 1:
+        search = int(input('검색창 선택 (0 - 전체 검색창 // 1 - 상세 검색창) : '))
+        if search == 0:
+            all_search_link()
+        elif search == 1:
+            detail_search_link()
+
+    # 상세 검색창 작동
+    more_search = int(input('추가로 상세 검색할 횟수 입력 (0 - 미사용) : '))
+    for i in range(more_search):
+        detail_search_link()
+
+    # 다음 페이지 이동
+    page_num = 4
+    m_index = 1
+
+    return page_num, m_index
+
 # 전체 검색창 이용 함수
 # 함수 이용시 상의 전체나 하의 전체의 링크에서만 이용
 def all_search_link():
-    
     # 검색창 이용
      # element 사용 => 하나의 객체 사용, elements는 list형 사용
     all_search = browser.find_element(By.XPATH, "//*[@id='search_query']") # 전체 검색창을 불러옴
@@ -187,45 +227,144 @@ def next_page(page_num) :
     
     return page_num
 
+# 무신사 사이트에서 이미지 파일을 가져올 때는 페이지를 끝까지 내리는 것이 아니라, 특정 부분을 나눠서 내려야 정상적으로 로딩이 됨
+def scroll_page() :
+    body = browser.find_element(By.CSS_SELECTOR, 'body')
+    for _ in range (10):
+        body.send_keys(Keys.PAGE_DOWN)
+        time.sleep(1)
+    time.sleep(2)
+
+# 이미지 찾기 함수
+def image_search():
+    img_src = m_image[0].get_attribute("src") # 이미지 형태로 가져옴
+    response = requests.get(img_src)
+    # 이미지를 저장할 때는 'byte'로 '작성(w)'해야함 -> wb로 이미지 파일 생성
+    with open(f"C:\\Users\\신승우\\Desktop\\팀플 테스트 &참고자료\\팀플 테스트\\이미지 테스트\\image\\{i+k}.jpg", "wb") as f:
+        f.write(response.content) #.content를 사용하여 byte 단위의 데이터를 있는 그대로 가져옴
+
+# # 이미지 크기 변환
+# def image_resize():
+#     img = f"C:\\Users\\신승우\\Desktop\\팀플 테스트 &참고자료\\팀플 테스트\\이미지 테스트\\image\\{i+k}.jpg"
+#     img_re = Image.open(img).convert('RGB')
+#     img_re = img_re.resize((210, 300), Image.ANTIALIAS) # 이미지 파일 크기 조정
+#     img_re.save(f"C:\\Users\\신승우\\Desktop\\팀플 테스트 &참고자료\\팀플 테스트\\이미지 테스트\\image\\{i+k}_resize.jpg")
+
+
+
+
+
 ##############################################################################################################################
 # 프로그램 작동
-
 browser = web_crawling()
+page_num, m_index = start_m()
+image_folder = 'C:\\Users\\신승우\\Desktop\\팀플 테스트 &참고자료\\팀플 테스트\\이미지 테스트\\image' # 폴더 설정
+if not os.path.isdir(image_folder): # 폴더가 존재하는지 확인
+    os.mkdir(image_folder) # 존재하지 않으면 해당 폴더 생성
+k = 0 # 이미지 저장을 위한 변수
 
-# 검색창 이용 여부 확인
-use_search = int(input('검색창 이용 (0 - 검색창 미사용 // 1 - 검색창 사용) :'))
-
-# 0 입력 시 전체 검색창에서 내용을 검색
-# 1 입력 시 상세 검색창에서 내용을 검색
-
-if use_search == 1:
-    search = int(input('검색창 선택 (0 - 전체 검색창 // 1 - 상세 검색창) :'))
-    if search == 0:
-        all_search_link()
-    elif search == 1:
-        detail_search_link()
-
-# 상세 검색창 작동
-more_search = int(input('추가로 상세 검색할 횟수 입력 (0 - 미사용) : '))
-for i in range(more_search):
-    detail_search_link()
-
-# 다음 페이지 이동
-page_num = 4
 while(True):
-    page_num = next_page(page_num)
+    page_num = next_page(page_num) # 페이지 선택 후 다음 페이지로 이동
+    scroll_page()
+
+    for i in range (1, 91):
+        m_brand = browser.find_elements(By.XPATH, f"//*[@id='searchList']/li[{i}]/div/div[2]/p[1]/a") # 브랜드 호출
+        m_product = browser.find_elements(By.XPATH, f"//*[@id='searchList']/li[{i}]/div/div[2]/p[2]/a") # 상품 명 호출
+        m_price = browser.find_elements(By.XPATH, f"//*[@id='searchList']/li[{i}]/div/div[2]/p[3]") # 가격 호출
+        m_link = browser.find_elements(By.XPATH, f"//*[@id='searchList']/li[{i}]/div/div[1]/a") # 링크 호출
+        product_link = m_link[0].get_attribute("href") # m_link를 링크 형태로 변환
+
+        print("=======================================================")
+        
+        print(m_index, "번 제품")
+        m_index += 1
+        if len(m_brand) > 0:
+            print(m_brand[0].text)
+    
+        if len(m_product) > 0:
+            print(m_product[0].text)
+
+        if len(m_price) > 0:
+            print(m_price[0].text)
+        
+        if len(product_link) > 0:
+            print(product_link)
+
+        print("=======================================================")
+    
+    for i in range(1, 91):
+        m_image = browser.find_elements(By.XPATH, f"//*[@id='searchList']/li[{i}]/div/div[1]/a/img") # 이미지 링크 호출
+        image_search()
+        # image_resize()
+    k = k + 90
+
     if page_num == 0:
         break
 
-browser.close() # 종료
 
+
+browser.close() # 종료
 
 ##############################################################################################################################
 
-# 미구현
+# 미구현 or 보류
+
+# for i in range (30):
+#     m_brand = browser.find_elements(By.XPATH, f"//*[@id='searchList']/li[{i}]/div/div[2]/p[1]/a")
+#     m_product = browser.find_elements(By.XPATH, f"//*[@id='searchList']/li[{i}]/div/div[2]/p[2]/a")
+
+#     print(m_brand[i])
+#     print(m_product[i])
+
+
+    # # 끝까지 스크롤
+    #     browser.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+
+    # # 대기 1초 (로딩으로 인해 알맞는 초 조절)
+    #     time.sleep(1)
+
+    # # 스크롤 길이 비교로 끝까지 갔는지 확인
+    #     new_height = browser.execute_script("return document.body.scrollHeight")
+    #     if new_height == last_height:
+    #         break
+    #     last_height = new_height
+
+
+
+
 # for i in range(1, 10):
 #     m_product = browser.find_elements(By.XPATH, "//*[@id='searchList']/li[{}]/div[4]/div[2]/p[2]/a".format(i)) # 제품 명을 가져옴
 #     if len(m_product) > 0:
 #         print("i: ", i, f"length of name: ", len(m_product),"")
 #         print(m_product[0].text) # 출력
 ##############################################################################################################################
+# with open('fashion_receive.csv', 'w', newline='', encoding='utf-8-sig') as csvfile:
+#     fieldnames = ['브랜드', '제품명', '가격']
+#     writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+#     writer.writeheader()
+
+#     while True:
+#         page_num = next_page(page_num)
+
+#         for i in range(1, 91):
+#             m_brand = browser.find_elements(By.XPATH, f"//*[@id='searchList']/li[{i}]/div/div[2]/p[1]/a")
+#             m_product = browser.find_elements(By.XPATH, f"//*[@id='searchList']/li[{i}]/div/div[2]/p[2]/a")
+#             m_price = browser.find_elements(By.XPATH, f"//*[@id='searchList']/li[{i}]/div/div[2]/p[3]")
+#             m_image = browser.find_elements(By.XPATH, f"//*[@id='searchList']/li[{i}]/div[4]/div[1]/a/img")
+
+#             # scroll_page()
+
+#             print("=======================================================")
+
+#             print(m_index, "번 제품")
+#             m_index += 1
+
+#             brand = m_brand[0].text if len(m_brand) > 0 else ''
+#             product = m_product[0].text if len(m_product) > 0 else ''
+#             price = m_price[0].text if len(m_price) > 0 else ''
+
+#             writer.writerow({'브랜드': brand, '제품명': product, '가격': price})
+
+#             print(brand)
+#             print(product)
+#             print(price)
