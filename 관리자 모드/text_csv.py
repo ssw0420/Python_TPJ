@@ -110,6 +110,9 @@ page_num = 4
 m_index = 1
 
 # CSV 파일을 쓰기 모드로 열고 필드 이름을 지정
+# 개행 문자 처리를 하기 위해 newline='' 사용
+# csvfile 변수에 연결하여 파일 작업 수행을 위해  'as csvfile' 사용
+# DictWriter를 사용하여 csv파일에 기록할 수 있도록 함
 with open('fashion_receive.csv', 'w', newline='', encoding='utf-8-sig') as csvfile:
     fieldnames = ['브랜드', '제품명', '원래 가격', '할인 가격']  # 필드 이름 수정
     writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
@@ -127,6 +130,9 @@ with open('fashion_receive.csv', 'w', newline='', encoding='utf-8-sig') as csvfi
         # 각 제품에 대해 정보 수집
         for i in range(1, 91):
             # 브랜드, 제품명, 가격 요소 가져오기
+            # 요소를 찾기 위해 XPATH 사용
+            # 웹 페이지를 조작하기 위해 browser 사용
+            # 'find_elements' 메서드를 사용하여 XPATH에 해당하는 요소를 가져옴 
             m_brand = browser.find_elements(By.XPATH, f"//*[@id='searchList']/li[{i}]/div/div[2]/p[1]/a")
             m_product = browser.find_elements(By.XPATH, f"//*[@id='searchList']/li[{i}]/div/div[2]/p[2]/a")
             m_price = browser.find_elements(By.XPATH, f"//*[@id='searchList']/li[{i}]/div/div[2]/p[3]")
@@ -138,24 +144,28 @@ with open('fashion_receive.csv', 'w', newline='', encoding='utf-8-sig') as csvfi
             print(i, "번 제품")
 
             # 요소에서 텍스트 추출 (브랜드, 제품명, 가격)
+            # 각 요소가 존재하면 할당, 없으면 빈칸
             brand = m_brand[0].text if len(m_brand) > 0 else ''
             product = m_product[0].text if len(m_product) > 0 else ''
             price_text = m_price[0].text if len(m_price) > 0 else ''
             price_list = price_text.split()
-
+            # 원래 가격과 할인 가격을 빈문자열로 초기화
             original_price = ''
             discount_price = ''
 
             # 가격 정보 분리
+            # 가격 정보가 두개 이상이면 원래가격과 할인가격을 분리해서 리스트 저장
             if len(price_list) >= 2:
                 original_price = price_list[0]
                 discount_price = price_list[1]
+            # 가격 정보가 하나이면 원래가격에만 리스트 저장
             elif len(price_list) == 1:
                 original_price = price_list[0]
 
             # CSV 파일에 쓰기
             writer.writerow({'브랜드': brand, '제품명': product, '원래 가격': original_price, '할인 가격': discount_price})
-
+            
+            #출력
             print(brand)
             print(product)
             print(original_price)
