@@ -59,16 +59,16 @@ usf-8에서 excel로 csv파일 확인 시 한글이 깨지면 encoding 할 때 u
 
 
 
---- 라이브러리 호출 ---  => 필요 시 업데이트 (2023.05.20)
+--- 라이브러리 호출 ---  => 필요 시 업데이트 (2023.05.25)
 
 pandas -> csv 파일 활용
-re -> 특수기호 같은 문자 필터링 => (필요 없을 시 삭제할 예정)
+# re -> 특수기호 같은 문자 필터링 => (필요 없을 시 삭제할 예정)
 csv -> csv 파일 활용
 from selenium.webdriver.common.by import By -> 정보를 가져오기 위함
 from selenium.webdriver.common.keys import Keys -> 키 작동을 위함
 time -> 오류 방지를 위한 대기 시간
 from selenium import webdriver -> 크롬 작동
-codecs -> 인코딩 문제 해결
+# codecs -> 인코딩 문제 해결 => (필요 없을 시 삭제할 예정)
 os -> 이미지 저장 폴더 설정
 requests -> 이미지 파일 저장
 Image -> 이미지 파일 크기 조정
@@ -77,7 +77,7 @@ Image -> 이미지 파일 크기 조정
 
 ##############################################################################################################################
 """
---- 변수 명 --- => 필요 시 업데이트 (2023.05.19)
+--- 변수 명 --- => 필요 시 업데이트 (2023.05.25)
 변수 추가 시, 식별 가능한 단어 사용
 
 browser : 사용할 링크 설정
@@ -91,6 +91,8 @@ more_search : 추가 검색
 view_all : 전체 제품 보기
 page_num : 페이지 클릭
 page : 페이지
+sum_page : 총 페이지
+page_input : 페이지 입력
 
 i : for 문 작동
 
@@ -105,14 +107,19 @@ m_weather : 계절 (봄)
 m_image : 이미지 파일
 m_link : 링크 호출
 product_link : 제품 상세 링크
+original_price : 원래 가격
+discount_price : 할인 가격
 
 
-musinsa_df : 무신사 데이터프레임
+
+brand : 브랜드 정보 저장
+product : 제품 정보 저장
+price_text : 가격 정보 저장
+price_list : 가격 정보 분리
 
 
-row : 행
-column : 열
-data : 파일 정보
+field : 행 이름
+writer : csv 작성
 
 
 """
@@ -124,11 +131,9 @@ from selenium.webdriver.common.keys import Keys
 import pandas as pd
 import time
 import csv
-import re
-import codecs
 import os
 import requests
-from PIL import Image
+# from PIL import Image
 
 ##############################################################################################################################
 # 함수 선언
@@ -173,7 +178,7 @@ def start_m():
         detail_search_link()
 
     # 다음 페이지 이동
-    page_num = 4
+    page_num = 3
     m_index = 1
 
     return page_num, m_index
@@ -211,19 +216,23 @@ def detail_search_link():
 
 
 # 다음 페이지로 이동하는 함수
-def next_page(page_num) :
+def next_page(page_num, sum_page) :
     try : # 다음 페이지 클릭이 가능한 경우
+        # 탐색할 페이지가 한 페이지 목록을 넘지 않는 경우
+        if sum_page == page_num:
+            page_num = 0
+            return page_num
         page = browser.find_element(By.XPATH, "//*[@id='goods_list']/div[2]/div[1]/div/div/a[{}]".format(page_num)) # 다음 페이지로 이동
         page.click()
         time.sleep(2)
-    except : # 다음 페이지 클릭이 불가능한 경우
+        page_num += 1 # 페이지 숫자 증가
+        
+        if page_num == 14: # 페이지 10(마지막 페이지)까지 이동 하였을 때 다음 페이지 목록으로 이동
+            page_num = 3 # page_num을 3으로 초기화 시킴 (해당 페이지 목록의 1 페이지)
+    
+    except : # 페이지 목록이 끝까지 이동을 하여 다음 페이지 클릭이 불가능한 경우
         page_num = 0
         return page_num
-
-    page_num += 1 # 페이지 숫자 증가
-
-    if page_num == 14: # 페이지 10(마지막 페이지)까지 이동 하였을 때 다음 페이지 목록으로 이동
-        page_num = 4 # page_num을 4로 초기화 시킴 (해당 페이지 목록의 1 페이지)
     
     return page_num
 
@@ -261,110 +270,74 @@ page_num, m_index = start_m()
 image_folder = 'C:\\Users\\신승우\\Desktop\\팀플 테스트 &참고자료\\팀플 테스트\\이미지 테스트\\image' # 폴더 설정
 if not os.path.isdir(image_folder): # 폴더가 존재하는지 확인
     os.mkdir(image_folder) # 존재하지 않으면 해당 폴더 생성
+
+csv_folder = 'C:\\Users\\신승우\\Desktop\\팀플 테스트 &참고자료\\팀플 테스트\\CSV 테스트\\crawling_csv' # 폴더 설정
+if not os.path.isdir(csv_folder):
+    os.mkdir(csv_folder)
 k = 0 # 이미지 저장을 위한 변수
 
-while(True):
-    page_num = next_page(page_num) # 페이지 선택 후 다음 페이지로 이동
-    scroll_page()
+# csv 파일을 생성하거나 열음
+with open('C:\\Users\\신승우\\Desktop\\팀플 테스트 &참고자료\\팀플 테스트\\CSV 테스트\\crawling_csv\\fashion_receive.csv', 'w', newline='', encoding='utf-8-sig') as csvfile:
+    field = ['브랜드', '제품명', '원래 가격', '할인 가격']  # 필드 이름 수정
+    writer = csv.DictWriter(csvfile, fieldnames=field)
+    writer.writeheader()
 
-    for i in range (1, 91):
-        m_brand = browser.find_elements(By.XPATH, f"//*[@id='searchList']/li[{i}]/div/div[2]/p[1]/a") # 브랜드 호출
-        m_product = browser.find_elements(By.XPATH, f"//*[@id='searchList']/li[{i}]/div/div[2]/p[2]/a") # 상품 명 호출
-        m_price = browser.find_elements(By.XPATH, f"//*[@id='searchList']/li[{i}]/div/div[2]/p[3]") # 가격 호출
-        m_link = browser.find_elements(By.XPATH, f"//*[@id='searchList']/li[{i}]/div/div[1]/a") # 링크 호출
-        product_link = m_link[0].get_attribute("href") # m_link를 링크 형태로 변환
+    # 페이지 입력
+    page_input = int(input("검색할 페이지 수 입력 : "))
+    sum_page = page_num + page_input # 총 페이지
+    while(True):
+        page_num = next_page(page_num, sum_page) # 페이지 선택 후 다음 페이지로 이동
 
-        print("=======================================================")
+        if page_num == 0: # 종료
+            browser.close()
+            exit()
+        scroll_page()
+
+        for i in range (1, 91):
+            m_brand = browser.find_elements(By.XPATH, f"//*[@id='searchList']/li[{i}]/div/div[2]/p[1]/a") # 브랜드 호출
+            m_product = browser.find_elements(By.XPATH, f"//*[@id='searchList']/li[{i}]/div/div[2]/p[2]/a") # 상품 명 호출
+            m_price = browser.find_elements(By.XPATH, f"//*[@id='searchList']/li[{i}]/div/div[2]/p[3]") # 가격 호출
+            m_link = browser.find_elements(By.XPATH, f"//*[@id='searchList']/li[{i}]/div/div[1]/a") # 링크 호출
+            product_link = m_link[0].get_attribute("href") # m_link를 링크 형태로 변환
+
+
+            # 텍스트 추출 (브랜드, 제품명, 가격)
+            brand = m_brand[0].text if len(m_brand) > 0 else ''
+            product = m_product[0].text if len(m_product) > 0 else ''
+            price_text = m_price[0].text if len(m_price) > 0 else ''
+            price_list = price_text.split()
+
+            original_price = ''
+            discount_price = ''
+
+            # 가격 정보 분리 (원래 가격, 할인 가격)
+            if len(price_list) >= 2:
+                original_price = price_list[0]
+                discount_price = price_list[1]
+            elif len(price_list) == 1:
+                original_price = price_list[0]
         
-        print(m_index, "번 제품")
-        m_index += 1
-        if len(m_brand) > 0:
-            print(m_brand[0].text)
-    
-        if len(m_product) > 0:
-            print(m_product[0].text)
+            # CSV 파일에 쓰기
+            writer.writerow({'브랜드': brand, '제품명': product, '원래 가격': original_price, '할인 가격': discount_price})
 
-        if len(m_price) > 0:
-            print(m_price[0].text)
+
+            # 프로그램이 정상적으로 작동되는지 확인
+            print("=======================================================")
         
-        if len(product_link) > 0:
+            print(m_index, "번 제품")
+            m_index += 1
+
+            print(brand)
+            print(product)
+            print(original_price)
+            print(discount_price)
             print(product_link)
 
-        print("=======================================================")
+            print("=======================================================")
     
-    for i in range(1, 91):
-        m_image = browser.find_elements(By.XPATH, f"//*[@id='searchList']/li[{i}]/div/div[1]/a/img") # 이미지 링크 호출
-        image_search()
-        # image_resize()
-    k = k + 90
+        for i in range(1, 91):
+            m_image = browser.find_elements(By.XPATH, f"//*[@id='searchList']/li[{i}]/div/div[1]/a/img") # 이미지 링크 호출
+            image_search()
 
-    if page_num == 0:
-        break
-
-
-
-browser.close() # 종료
-
-##############################################################################################################################
-
-# 미구현 or 보류
-
-# for i in range (30):
-#     m_brand = browser.find_elements(By.XPATH, f"//*[@id='searchList']/li[{i}]/div/div[2]/p[1]/a")
-#     m_product = browser.find_elements(By.XPATH, f"//*[@id='searchList']/li[{i}]/div/div[2]/p[2]/a")
-
-#     print(m_brand[i])
-#     print(m_product[i])
-
-
-    # # 끝까지 스크롤
-    #     browser.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-
-    # # 대기 1초 (로딩으로 인해 알맞는 초 조절)
-    #     time.sleep(1)
-
-    # # 스크롤 길이 비교로 끝까지 갔는지 확인
-    #     new_height = browser.execute_script("return document.body.scrollHeight")
-    #     if new_height == last_height:
-    #         break
-    #     last_height = new_height
-
-
-
-
-# for i in range(1, 10):
-#     m_product = browser.find_elements(By.XPATH, "//*[@id='searchList']/li[{}]/div[4]/div[2]/p[2]/a".format(i)) # 제품 명을 가져옴
-#     if len(m_product) > 0:
-#         print("i: ", i, f"length of name: ", len(m_product),"")
-#         print(m_product[0].text) # 출력
-##############################################################################################################################
-# with open('fashion_receive.csv', 'w', newline='', encoding='utf-8-sig') as csvfile:
-#     fieldnames = ['브랜드', '제품명', '가격']
-#     writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-#     writer.writeheader()
-
-#     while True:
-#         page_num = next_page(page_num)
-
-#         for i in range(1, 91):
-#             m_brand = browser.find_elements(By.XPATH, f"//*[@id='searchList']/li[{i}]/div/div[2]/p[1]/a")
-#             m_product = browser.find_elements(By.XPATH, f"//*[@id='searchList']/li[{i}]/div/div[2]/p[2]/a")
-#             m_price = browser.find_elements(By.XPATH, f"//*[@id='searchList']/li[{i}]/div/div[2]/p[3]")
-#             m_image = browser.find_elements(By.XPATH, f"//*[@id='searchList']/li[{i}]/div[4]/div[1]/a/img")
-
-#             # scroll_page()
-
-#             print("=======================================================")
-
-#             print(m_index, "번 제품")
-#             m_index += 1
-
-#             brand = m_brand[0].text if len(m_brand) > 0 else ''
-#             product = m_product[0].text if len(m_product) > 0 else ''
-#             price = m_price[0].text if len(m_price) > 0 else ''
-
-#             writer.writerow({'브랜드': brand, '제품명': product, '가격': price})
-
-#             print(brand)
-#             print(product)
-#             print(price)
+            # image_resize()
+        k = k + 90
