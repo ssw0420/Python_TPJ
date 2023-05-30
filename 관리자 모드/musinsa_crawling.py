@@ -7,8 +7,8 @@
 아우터는 프로젝트 진행 상황에 따라 추가 => 상의, 하의만 사용하기로 결정
 
 
---- 상의 --- => 필요 시 업데이트 (2023.05.06)
-전체 제품 검색창을 이용할 시에는 상의 전체나 하의 전체 사이트에서 검색하면 됨
+--- 상의 ---
+전체 제품 검색창을 이용할 시에는 상의 전체나 하의 전체 사이트에서 검색
 
 상의 전체 : https://www.musinsa.com/categories/item/001
 상의 반소매 티셔츠 : https://www.musinsa.com/categories/item/001001
@@ -21,7 +21,7 @@
 상의 긴소매 티셔츠 : https://www.musinsa.com/categories/item/001010
 상의 민소매 티셔츠 : https://www.musinsa.com/categories/item/001011
 
---- 하의 --- => 필요 시 업데이트 (2023.05.06)
+--- 하의 ---
 하의 전체 : https://www.musinsa.com/categories/item/003
 하의 데님 팬츠 : https://www.musinsa.com/categories/item/003002
 하의 트레이닝/조거팬츠 : https://www.musinsa.com/categories/item/003004
@@ -32,7 +32,7 @@
 하의 숏팬츠 : https://www.musinsa.com/categories/item/003009
 하의 점프슈트/오버올 : https://www.musinsa.com/categories/item/003010
 
---- 스포츠 --- => 필요 시 업데이트 (2023.05.06)
+--- 스포츠 ---
 스포츠 상의 : https://www.musinsa.com/categories/item/017016
 스포츠 하의 : https://www.musinsa.com/categories/item/017020
 
@@ -41,7 +41,7 @@
 ##############################################################################################################################
 ##############################################################################################################################
 """
---- 검색할 옷 종류 --- => 자료조사 인원이 브랜치를 따로 만들어서 업데이트 바람 (2023.05.07)
+--- 검색할 옷 종류 --- => 자료조사 인원이 업데이트 바람
 상세 검색창을 이용할 때 사용
 
 아래는 표기 예시
@@ -53,15 +53,15 @@
 
 ##############################################################################################################################
 """
---- 참고 내용 --- => 필요 시 업데이트 (2023.05.06)
+--- 참고 내용 ---
 
 usf-8에서 excel로 csv파일 확인 시 한글이 깨지면 encoding 할 때 utf-8-sig 사용
 
 
 
---- 라이브러리 호출 ---  => 필요 시 업데이트 (2023.05.25)
+--- 라이브러리 호출 ---
 
-pandas -> csv 파일 활용
+pandas -> csv 파일 활용 => (필요 없을 시 삭제할 예정)
 # re -> 특수기호 같은 문자 필터링 => (필요 없을 시 삭제할 예정)
 csv -> csv 파일 활용
 from selenium.webdriver.common.by import By -> 정보를 가져오기 위함
@@ -77,7 +77,7 @@ Image -> 이미지 파일 크기 조정
 
 ##############################################################################################################################
 """
---- 변수 명 --- => 필요 시 업데이트 (2023.05.25)
+--- 변수 명 ---
 변수 추가 시, 식별 가능한 단어 사용
 
 browser : 사용할 링크 설정
@@ -128,7 +128,6 @@ writer : csv 작성
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
-import pandas as pd
 import time
 import csv
 import os
@@ -158,7 +157,7 @@ def web_crawling() :
 
 def start_m():
     # 프로그램 작동
-
+    search = 1
     # 검색창 이용 여부 확인
     use_search = int(input('검색창 이용 (0 - 검색창 미사용 // 1 - 검색창 사용) : '))
 
@@ -170,18 +169,19 @@ def start_m():
         if search == 0:
             all_search_link()
         elif search == 1:
+            # 상세 검색창 작동
+            # 전체 검색창을 사용한 경우에는 상세 검색창 사용이 불가능 함
             detail_search_link()
-
-    # 상세 검색창 작동
-    more_search = int(input('추가로 상세 검색할 횟수 입력 (0 - 미사용) : '))
-    for i in range(more_search):
-        detail_search_link()
+            more_search = int(input('추가로 상세 검색할 횟수 입력 (0 - 미사용) : '))
+            for i in range(more_search):
+                detail_search_link()
 
     # 다음 페이지 이동
     page_num = 3
     m_index = 1
 
-    return page_num, m_index
+    # 전체 검색창 이용시 search 0 반환, 상세 검색창 이용시 search 1 반환
+    return page_num, m_index, search
 
 # 전체 검색창 이용 함수
 # 함수 이용시 상의 전체나 하의 전체의 링크에서만 이용
@@ -203,6 +203,7 @@ def all_search_link():
 
 
 
+
 # 상세 검색창 이용 함수
 # 함수 이용시 특정 종류의 제품들이 나열된 링크에서 이용
 def detail_search_link():
@@ -216,15 +217,21 @@ def detail_search_link():
 
 
 # 다음 페이지로 이동하는 함수
-def next_page(page_num, sum_page) :
+def next_page(page_num, sum_page, search) :
     try : # 다음 페이지 클릭이 가능한 경우
         # 탐색할 페이지가 한 페이지 목록을 넘지 않는 경우
         if sum_page == page_num:
             page_num = 0
             return page_num
-        page = browser.find_element(By.XPATH, "//*[@id='goods_list']/div[2]/div[1]/div/div/a[{}]".format(page_num)) # 다음 페이지로 이동
-        page.click()
-        time.sleep(2)
+        
+        if search == 0:
+            page = browser.find_element(By.XPATH, "//*[@id='goodsList']/div[1]/div/div/a[{}]".format(page_num))
+            page.click()
+            time.sleep(2)
+        elif search == 1:
+            page = browser.find_element(By.XPATH, "//*[@id='goods_list']/div[2]/div[1]/div/div/a[{}]".format(page_num)) # 다음 페이지로 이동
+            page.click()
+            time.sleep(2)
         page_num += 1 # 페이지 숫자 증가
         
         if page_num == 14: # 페이지 10(마지막 페이지)까지 이동 하였을 때 다음 페이지 목록으로 이동
@@ -266,7 +273,7 @@ def image_search():
 ##############################################################################################################################
 # 프로그램 작동
 browser = web_crawling()
-page_num, m_index = start_m()
+page_num, m_index, search = start_m()
 image_folder = 'C:\\Users\\신승우\\Desktop\\팀플 테스트 &참고자료\\팀플 테스트\\이미지 테스트\\image' # 폴더 설정
 if not os.path.isdir(image_folder): # 폴더가 존재하는지 확인
     os.mkdir(image_folder) # 존재하지 않으면 해당 폴더 생성
@@ -286,7 +293,7 @@ with open('C:\\Users\\신승우\\Desktop\\팀플 테스트 &참고자료\\팀플
     page_input = int(input("검색할 페이지 수 입력 : "))
     sum_page = page_num + page_input # 총 페이지
     while(True):
-        page_num = next_page(page_num, sum_page) # 페이지 선택 후 다음 페이지로 이동
+        page_num = next_page(page_num, sum_page, search) # 페이지 선택 후 다음 페이지로 이동
 
         if page_num == 0: # 종료
             browser.close()
