@@ -100,8 +100,6 @@ m_index : 고유 번호 (0)
 m_product : 제품 명 (베츠 어센틱 맨투맨 그레이)
 m_brand : 브랜드 명 (이벳필드)
 m_price : 가격 (50000)
-m_sets : 상의 하의 구분
-m_type : 상품의 종류 (맨투맨, 셔츠, 티셔츠, 반바지, ...)
 m_style : 스타일 (댄디)
 m_weather : 계절 (봄)
 m_image : 이미지 파일
@@ -256,7 +254,7 @@ def image_search():
     img_src = m_image[0].get_attribute("src") # 이미지 형태로 가져옴
     response = requests.get(img_src)
     # 이미지를 저장할 때는 'byte'로 '작성(w)'해야함 -> wb로 이미지 파일 생성
-    with open(f"C:\\Users\\신승우\\Desktop\\팀플 테스트 &참고자료\\팀플 테스트\\이미지 테스트\\image\\{i+k}.jpg", "wb") as f:
+    with open(f"C:\\Users\\신승우\\Desktop\\팀플 테스트 &참고자료\\팀플 테스트\\이미지 테스트\\summer_street_short_sleeved\\{i+k}_{product}.jpg", "wb") as f:
         f.write(response.content) #.content를 사용하여 byte 단위의 데이터를 있는 그대로 가져옴
 
 # # 이미지 크기 변환
@@ -272,9 +270,93 @@ def image_search():
 
 ##############################################################################################################################
 # 프로그램 작동
+# browser = web_crawling()
+# page_num, m_index, search = start_m()
+# image_folder = 'C:\\Users\\신승우\\Desktop\\팀플 테스트 &참고자료\\팀플 테스트\\이미지 테스트\\image' # 폴더 설정
+# if not os.path.isdir(image_folder): # 폴더가 존재하는지 확인
+#     os.mkdir(image_folder) # 존재하지 않으면 해당 폴더 생성
+
+# csv_folder = 'C:\\Users\\신승우\\Desktop\\팀플 테스트 &참고자료\\팀플 테스트\\CSV 테스트\\crawling_csv' # 폴더 설정
+# if not os.path.isdir(csv_folder):
+#     os.mkdir(csv_folder)
+# k = 0 # 이미지 저장을 위한 변수
+
+# # csv 파일을 생성하거나 열음
+# with open('C:\\Users\\신승우\\Desktop\\팀플 테스트 &참고자료\\팀플 테스트\\CSV 테스트\\crawling_csv\\fashion_receive.csv', 'w', newline='', encoding='utf-8-sig') as csvfile:
+#     field = ['브랜드', '제품명', '원래 가격', '할인 가격']  # 필드 이름 수정
+#     writer = csv.DictWriter(csvfile, fieldnames=field)
+#     writer.writeheader()
+
+#     # 페이지 입력
+#     page_input = int(input("검색할 페이지 수 입력 : "))
+#     sum_page = page_num + page_input # 총 페이지
+#     while(True):
+#         page_num = next_page(page_num, sum_page, search) # 페이지 선택 후 다음 페이지로 이동
+
+#         if page_num == 0: # 종료
+#             browser.close()
+#             exit()
+#         scroll_page()
+
+#         for i in range (1, 91):
+#             m_brand = browser.find_elements(By.XPATH, f"//*[@id='searchList']/li[{i}]/div/div[2]/p[1]/a") # 브랜드 호출
+#             m_product = browser.find_elements(By.XPATH, f"//*[@id='searchList']/li[{i}]/div/div[2]/p[2]/a") # 상품 명 호출
+#             m_price = browser.find_elements(By.XPATH, f"//*[@id='searchList']/li[{i}]/div/div[2]/p[3]") # 가격 호출
+#             m_link = browser.find_elements(By.XPATH, f"//*[@id='searchList']/li[{i}]/div/div[1]/a") # 링크 호출
+#             m_style = ""
+#             m_weather = ""
+#             product_link = m_link[0].get_attribute("href") # m_link를 링크 형태로 변환
+
+
+#             # 텍스트 추출 (브랜드, 제품명, 가격)
+#             brand = m_brand[0].text if len(m_brand) > 0 else ''
+#             product = m_product[0].text if len(m_product) > 0 else ''
+#             price_text = m_price[0].text if len(m_price) > 0 else ''
+#             price_list = price_text.split()
+
+#             original_price = ''
+#             discount_price = ''
+
+#             # 가격 정보 분리 (원래 가격, 할인 가격)
+#             if len(price_list) >= 2:
+#                 original_price = price_list[0]
+#                 discount_price = price_list[1]
+#             elif len(price_list) == 1:
+#                 original_price = price_list[0]
+        
+#             # CSV 파일에 쓰기
+#             writer.writerow({'브랜드': brand, '제품명': product, '원래 가격': original_price, '할인 가격': discount_price, '스타일': m_style, '계절': m_weather})
+
+
+#             # 프로그램이 정상적으로 작동되는지 확인
+#             print("=======================================================")
+        
+#             print(m_index, "번 제품")
+#             m_index += 1
+
+#             print(brand)
+#             print(product)
+#             print(original_price)
+#             print(discount_price)
+#             print(m_style)
+#             print(m_weather)
+#             print(product_link)
+
+#             print("=======================================================")
+    
+#         for i in range(1, 91):
+#             m_image = browser.find_elements(By.XPATH, f"//*[@id='searchList']/li[{i}]/div/div[1]/a/img") # 이미지 링크 호출
+#             image_search()
+
+#             # image_resize()
+#         k = k + 90
+##############################################################################################################################
+
+# 여름 스트릿 코드
+# 프로그램 작동
 browser = web_crawling()
 page_num, m_index, search = start_m()
-image_folder = 'C:\\Users\\신승우\\Desktop\\팀플 테스트 &참고자료\\팀플 테스트\\이미지 테스트\\image' # 폴더 설정
+image_folder = 'C:\\Users\\신승우\\Desktop\\팀플 테스트 &참고자료\\팀플 테스트\\이미지 테스트\\summer_street_short_sleeved' # 폴더 설정
 if not os.path.isdir(image_folder): # 폴더가 존재하는지 확인
     os.mkdir(image_folder) # 존재하지 않으면 해당 폴더 생성
 
@@ -284,8 +366,8 @@ if not os.path.isdir(csv_folder):
 k = 0 # 이미지 저장을 위한 변수
 
 # csv 파일을 생성하거나 열음
-with open('C:\\Users\\신승우\\Desktop\\팀플 테스트 &참고자료\\팀플 테스트\\CSV 테스트\\crawling_csv\\fashion_receive.csv', 'w', newline='', encoding='utf-8-sig') as csvfile:
-    field = ['브랜드', '제품명', '원래 가격', '할인 가격']  # 필드 이름 수정
+with open('C:\\Users\\신승우\\Desktop\\팀플 테스트 &참고자료\\팀플 테스트\\CSV 테스트\\crawling_csv\\summer_street_short_sleeved.csv', 'w', newline='', encoding='utf-8-sig') as csvfile:
+    field = ['브랜드', '제품명', '원래 가격', '할인 가격', '스타일', '계절', '링크']  # 필드 이름 수정
     writer = csv.DictWriter(csvfile, fieldnames=field)
     writer.writeheader()
 
@@ -298,6 +380,7 @@ with open('C:\\Users\\신승우\\Desktop\\팀플 테스트 &참고자료\\팀플
         if page_num == 0: # 종료
             browser.close()
             exit()
+
         scroll_page()
 
         for i in range (1, 91):
@@ -305,6 +388,8 @@ with open('C:\\Users\\신승우\\Desktop\\팀플 테스트 &참고자료\\팀플
             m_product = browser.find_elements(By.XPATH, f"//*[@id='searchList']/li[{i}]/div/div[2]/p[2]/a") # 상품 명 호출
             m_price = browser.find_elements(By.XPATH, f"//*[@id='searchList']/li[{i}]/div/div[2]/p[3]") # 가격 호출
             m_link = browser.find_elements(By.XPATH, f"//*[@id='searchList']/li[{i}]/div/div[1]/a") # 링크 호출
+            m_style = "스트릿"
+            m_weather = "여름"
             product_link = m_link[0].get_attribute("href") # m_link를 링크 형태로 변환
 
 
@@ -325,7 +410,7 @@ with open('C:\\Users\\신승우\\Desktop\\팀플 테스트 &참고자료\\팀플
                 original_price = price_list[0]
         
             # CSV 파일에 쓰기
-            writer.writerow({'브랜드': brand, '제품명': product, '원래 가격': original_price, '할인 가격': discount_price})
+            writer.writerow({'브랜드': brand, '제품명': product, '원래 가격': original_price, '할인 가격': discount_price, '스타일': m_style, '계절': m_weather, '링크' : product_link})
 
 
             # 프로그램이 정상적으로 작동되는지 확인
@@ -338,6 +423,8 @@ with open('C:\\Users\\신승우\\Desktop\\팀플 테스트 &참고자료\\팀플
             print(product)
             print(original_price)
             print(discount_price)
+            print(m_style)
+            print(m_weather)
             print(product_link)
 
             print("=======================================================")
