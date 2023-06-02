@@ -367,7 +367,7 @@ k = 0 # 이미지 저장을 위한 변수
 
 # csv 파일을 생성하거나 열음
 with open('C:\\Users\\신승우\\Desktop\\팀플 테스트 &참고자료\\팀플 테스트\\CSV 테스트\\crawling_csv\\summer_street_short_sleeved.csv', 'w', newline='', encoding='utf-8-sig') as csvfile:
-    field = ['브랜드', '제품명', '원래 가격', '할인 가격', '스타일', '계절', '링크']  # 필드 이름 수정
+    field = ['브랜드', '제품명', '원래 가격', '할인 가격', '스타일', '계절', '링크', '이미지 경로']  # 필드 이름 수정
     writer = csv.DictWriter(csvfile, fieldnames=field)
     writer.writeheader()
 
@@ -408,9 +408,11 @@ with open('C:\\Users\\신승우\\Desktop\\팀플 테스트 &참고자료\\팀플
                 discount_price = price_list[1]
             elif len(price_list) == 1:
                 original_price = price_list[0]
+
+            image_path = f"C:\\Users\\신승우\\Desktop\\팀플 테스트 &참고자료\\팀플 테스트\\이미지 테스트\\summer_street_short_sleeved\\{i+k}_{product}.jpg"
         
             # CSV 파일에 쓰기
-            writer.writerow({'브랜드': brand, '제품명': product, '원래 가격': original_price, '할인 가격': discount_price, '스타일': m_style, '계절': m_weather, '링크' : product_link})
+            writer.writerow({'브랜드': brand, '제품명': product, '원래 가격': original_price, '할인 가격': discount_price, '스타일': m_style, '계절': m_weather, '링크' : product_link, '이미지 경로' : image_path})
 
 
             # 프로그램이 정상적으로 작동되는지 확인
