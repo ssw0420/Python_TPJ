@@ -1,11 +1,7 @@
 ##############################################################################################################################
 """
---- 프로그램 설명 --- => 임의로 수정 금지
+--- 프로그램 설명 ---
 무신사 사이트에서 남성 옷에 대한 정보를 크롤링하여 csv 파일에 저장하는 프로그램
-
-브랜드, 제품명, (세일이 적용된) 가격, 상품 종류를 가져옴
-아우터는 프로젝트 진행 상황에 따라 추가 => 상의, 하의만 사용하기로 결정
-
 
 --- 상의 ---
 전체 제품 검색창을 이용할 시에는 상의 전체나 하의 전체 사이트에서 검색
@@ -41,11 +37,59 @@
 ##############################################################################################################################
 ##############################################################################################################################
 """
---- 검색할 옷 종류 --- => 자료조사 인원이 업데이트 바람
+--- 검색할 옷 종류 ---
 상세 검색창을 이용할 때 사용
 
-아래는 표기 예시
-여름 - 댄디(스타일 구분 불가시 미작성) - 상의 셔츠/블라우스 - 린넨 셔츠
+상의
+	봄
+	스트릿 :  여름,스트릿,긴소매 + 여름,스트릿,반소매 (봄, 스트릿 시에 표본 수가 적어 얇은 여름원단에 긴소매,반소매를 합침)
+	캐주얼 : 여름,캐주얼,긴소매 + 여름,캐주얼,반소매
+	포멀 : 여름,포멀,긴소매 +여름,포멀,반소매
+	스포츠 : 스포츠,아노락 + 스포츠,스웻셔츠 +스포츠,반소매
+ 
+	여름
+	스트릿 : 여름,스트릿,반소매
+	캐주얼 : 여름,캐주얼,반소매
+	포멀 : 여름,포멀,반소매
+	스포츠 : 스포츠,아노락 + 스포츠,스웻셔츠,반소매 +스포츠,반소매
+
+	가을
+	스트릿 : 가을,스트릿,긴소매
+	캐주얼 : 가을,캐주얼,긴소매
+	포멀 : 가을,포멀,긴소매,셔츠 + 가을,포멀,긴소매,터틀넥 + 니트,포멀,긴소매
+	스포츠 : 스포츠,아노락 + 스포츠,스웻셔츠,긴소매 
+
+	겨울
+	스트릿 : 겨울,스트릿,긴소매
+	캐주얼 : 겨울,캐주얼,긴소매
+	포멀 : 겨울,포멀,긴소매,셔츠 + 겨울,포멀,긴소매,터틀넥 + 니트,포멀,긴소매
+	스포츠 : 스포츠,아노락 + 스포츠,스웻셔츠,긴소매 
+
+
+하의
+	봄
+	스트릿 : 여름,스트릿
+	캐주얼 : 여름,캐주얼
+	포멀 : 치노,포멀 + 슬렉스,포멀 + 데님,포멀
+	스포츠 : 트레이닝	
+ 
+	여름
+	스트릿 : 여름,스트릿
+	캐주얼 : 여름,캐주얼
+	포멀 : 치노,포멀 + 슬렉스,포멀 + 데님,포멀
+	스포츠 : 트레이닝
+
+	가을
+	스트릿 : 겨울,스트릿
+	캐주얼 : 겨울,캐주얼
+	포멀 : 치노,포멀,긴바지+ 슬렉스,포멀,긴바지 + 데님,포멀,긴바지
+	스포츠 : 트레이닝,긴바지
+
+	겨울
+	스트릿 :  겨울,스트릿
+	캐주얼 : 겨울,캐주얼
+	포멀 : 치노,포멀,긴바지 + 슬렉스,포멀,긴바지 + 데님,포멀,긴바지
+	스포츠 : 트레이닝,긴바지
 
 
 """
@@ -58,17 +102,13 @@
 usf-8에서 excel로 csv파일 확인 시 한글이 깨지면 encoding 할 때 utf-8-sig 사용
 
 
-
 --- 라이브러리 호출 ---
 
-pandas -> csv 파일 활용 => (필요 없을 시 삭제할 예정)
-# re -> 특수기호 같은 문자 필터링 => (필요 없을 시 삭제할 예정)
 csv -> csv 파일 활용
 from selenium.webdriver.common.by import By -> 정보를 가져오기 위함
 from selenium.webdriver.common.keys import Keys -> 키 작동을 위함
 time -> 오류 방지를 위한 대기 시간
 from selenium import webdriver -> 크롬 작동
-# codecs -> 인코딩 문제 해결 => (필요 없을 시 삭제할 예정)
 os -> 이미지 저장 폴더 설정
 requests -> 이미지 파일 저장
 Image -> 이미지 파일 크기 조정
@@ -78,9 +118,9 @@ Image -> 이미지 파일 크기 조정
 ##############################################################################################################################
 """
 --- 변수 명 ---
-변수 추가 시, 식별 가능한 단어 사용
 
-browser : 사용할 링크 설정
+image_folder, image_resize_folder, csv_folder : 경로 설정
+browser : 크롤링 링크 지정
 page : 웹 사이트 페이지 변화
 man : 남성 옷으로 설정
 use_search : 검색창 이용 여부
@@ -95,6 +135,7 @@ sum_page : 총 페이지
 page_input : 페이지 입력
 
 i : for 문 작동
+k : for 문 페이지 식별
 
 m_index : 고유 번호 (0)
 m_product : 제품 명 (베츠 어센틱 맨투맨 그레이)
@@ -107,7 +148,6 @@ m_link : 링크 호출
 product_link : 제품 상세 링크
 original_price : 원래 가격
 discount_price : 할인 가격
-
 
 
 brand : 브랜드 정보 저장
@@ -130,7 +170,7 @@ import time
 import csv
 import os
 import requests
-# from PIL import Image
+from PIL import Image
 
 ##############################################################################################################################
 # 함수 선언
@@ -246,119 +286,38 @@ def scroll_page() :
     body = browser.find_element(By.CSS_SELECTOR, 'body')
     for _ in range (10):
         body.send_keys(Keys.PAGE_DOWN)
-        time.sleep(1)
+        time.sleep(2)
     time.sleep(2)
 
 # 이미지 찾기 함수
-def image_search():
+def image_search(i, k):
     img_src = m_image[0].get_attribute("src") # 이미지 형태로 가져옴
     response = requests.get(img_src)
     # 이미지를 저장할 때는 'byte'로 '작성(w)'해야함 -> wb로 이미지 파일 생성
-    with open(f"C:\\Users\\신승우\\Desktop\\팀플 테스트 &참고자료\\팀플 테스트\\이미지 테스트\\summer_street_short_sleeved\\{i+k}_{product}.jpg", "wb") as f:
+    with open(f"C:\\Users\\신승우\\Desktop\\팀플 테스트 &참고자료\\팀플 테스트\\이미지 테스트\\summer_street_short_sleeved\\{i+k}.jpg", "wb") as f:
         f.write(response.content) #.content를 사용하여 byte 단위의 데이터를 있는 그대로 가져옴
 
-# # 이미지 크기 변환
-# def image_resize():
-#     img = f"C:\\Users\\신승우\\Desktop\\팀플 테스트 &참고자료\\팀플 테스트\\이미지 테스트\\image\\{i+k}.jpg"
-#     img_re = Image.open(img).convert('RGB')
-#     img_re = img_re.resize((210, 300), Image.ANTIALIAS) # 이미지 파일 크기 조정
-#     img_re.save(f"C:\\Users\\신승우\\Desktop\\팀플 테스트 &참고자료\\팀플 테스트\\이미지 테스트\\image\\{i+k}_resize.jpg")
-
-
-
+# 이미지 크기 변환
+def image_resize(i, k):
+    img = f"C:\\Users\\신승우\\Desktop\\팀플 테스트 &참고자료\\팀플 테스트\\이미지 테스트\\summer_street_short_sleeved\\{i+k}.jpg"
+    img_re = Image.open(img).convert('RGB')
+    img_re = img_re.resize((125, 150), Image.ANTIALIAS) # 이미지 파일 크기 조정
+    img_re.save(f"C:\\Users\\신승우\\Desktop\\팀플 테스트 &참고자료\\팀플 테스트\\이미지 테스트\\summer_street_short_sleeved\\resize\\{i+k}.jpg")
 
 
 ##############################################################################################################################
 # 프로그램 작동
-# browser = web_crawling()
-# page_num, m_index, search = start_m()
-# image_folder = 'C:\\Users\\신승우\\Desktop\\팀플 테스트 &참고자료\\팀플 테스트\\이미지 테스트\\image' # 폴더 설정
-# if not os.path.isdir(image_folder): # 폴더가 존재하는지 확인
-#     os.mkdir(image_folder) # 존재하지 않으면 해당 폴더 생성
-
-# csv_folder = 'C:\\Users\\신승우\\Desktop\\팀플 테스트 &참고자료\\팀플 테스트\\CSV 테스트\\crawling_csv' # 폴더 설정
-# if not os.path.isdir(csv_folder):
-#     os.mkdir(csv_folder)
-# k = 0 # 이미지 저장을 위한 변수
-
-# # csv 파일을 생성하거나 열음
-# with open('C:\\Users\\신승우\\Desktop\\팀플 테스트 &참고자료\\팀플 테스트\\CSV 테스트\\crawling_csv\\fashion_receive.csv', 'w', newline='', encoding='utf-8-sig') as csvfile:
-#     field = ['브랜드', '제품명', '원래 가격', '할인 가격']  # 필드 이름 수정
-#     writer = csv.DictWriter(csvfile, fieldnames=field)
-#     writer.writeheader()
-
-#     # 페이지 입력
-#     page_input = int(input("검색할 페이지 수 입력 : "))
-#     sum_page = page_num + page_input # 총 페이지
-#     while(True):
-#         page_num = next_page(page_num, sum_page, search) # 페이지 선택 후 다음 페이지로 이동
-
-#         if page_num == 0: # 종료
-#             browser.close()
-#             exit()
-#         scroll_page()
-
-#         for i in range (1, 91):
-#             m_brand = browser.find_elements(By.XPATH, f"//*[@id='searchList']/li[{i}]/div/div[2]/p[1]/a") # 브랜드 호출
-#             m_product = browser.find_elements(By.XPATH, f"//*[@id='searchList']/li[{i}]/div/div[2]/p[2]/a") # 상품 명 호출
-#             m_price = browser.find_elements(By.XPATH, f"//*[@id='searchList']/li[{i}]/div/div[2]/p[3]") # 가격 호출
-#             m_link = browser.find_elements(By.XPATH, f"//*[@id='searchList']/li[{i}]/div/div[1]/a") # 링크 호출
-#             m_style = ""
-#             m_weather = ""
-#             product_link = m_link[0].get_attribute("href") # m_link를 링크 형태로 변환
-
-
-#             # 텍스트 추출 (브랜드, 제품명, 가격)
-#             brand = m_brand[0].text if len(m_brand) > 0 else ''
-#             product = m_product[0].text if len(m_product) > 0 else ''
-#             price_text = m_price[0].text if len(m_price) > 0 else ''
-#             price_list = price_text.split()
-
-#             original_price = ''
-#             discount_price = ''
-
-#             # 가격 정보 분리 (원래 가격, 할인 가격)
-#             if len(price_list) >= 2:
-#                 original_price = price_list[0]
-#                 discount_price = price_list[1]
-#             elif len(price_list) == 1:
-#                 original_price = price_list[0]
-        
-#             # CSV 파일에 쓰기
-#             writer.writerow({'브랜드': brand, '제품명': product, '원래 가격': original_price, '할인 가격': discount_price, '스타일': m_style, '계절': m_weather})
-
-
-#             # 프로그램이 정상적으로 작동되는지 확인
-#             print("=======================================================")
-        
-#             print(m_index, "번 제품")
-#             m_index += 1
-
-#             print(brand)
-#             print(product)
-#             print(original_price)
-#             print(discount_price)
-#             print(m_style)
-#             print(m_weather)
-#             print(product_link)
-
-#             print("=======================================================")
-    
-#         for i in range(1, 91):
-#             m_image = browser.find_elements(By.XPATH, f"//*[@id='searchList']/li[{i}]/div/div[1]/a/img") # 이미지 링크 호출
-#             image_search()
-
-#             # image_resize()
-#         k = k + 90
-##############################################################################################################################
-
 # 여름 스트릿 코드
-# 프로그램 작동
+
 browser = web_crawling()
 page_num, m_index, search = start_m()
 image_folder = 'C:\\Users\\신승우\\Desktop\\팀플 테스트 &참고자료\\팀플 테스트\\이미지 테스트\\summer_street_short_sleeved' # 폴더 설정
 if not os.path.isdir(image_folder): # 폴더가 존재하는지 확인
     os.mkdir(image_folder) # 존재하지 않으면 해당 폴더 생성
+
+image_resize_folder = 'C:\\Users\\신승우\\Desktop\\팀플 테스트 &참고자료\\팀플 테스트\\이미지 테스트\\summer_street_short_sleeved\\resize' # 폴더 설정
+if not os.path.isdir(image_resize_folder): # 폴더가 존재하는지 확인
+    os.mkdir(image_resize_folder) # 존재하지 않으면 해당 폴더 생성
 
 csv_folder = 'C:\\Users\\신승우\\Desktop\\팀플 테스트 &참고자료\\팀플 테스트\\CSV 테스트\\crawling_csv' # 폴더 설정
 if not os.path.isdir(csv_folder):
@@ -367,7 +326,7 @@ k = 0 # 이미지 저장을 위한 변수
 
 # csv 파일을 생성하거나 열음
 with open('C:\\Users\\신승우\\Desktop\\팀플 테스트 &참고자료\\팀플 테스트\\CSV 테스트\\crawling_csv\\summer_street_short_sleeved.csv', 'w', newline='', encoding='utf-8-sig') as csvfile:
-    field = ['브랜드', '제품명', '원래 가격', '할인 가격', '스타일', '계절', '링크', '이미지 경로']  # 필드 이름 수정
+    field = ['브랜드', '제품명', '원래 가격', '할인 가격', '스타일', '계절', '링크']  # 필드 이름 수정
     writer = csv.DictWriter(csvfile, fieldnames=field)
     writer.writeheader()
 
@@ -385,7 +344,7 @@ with open('C:\\Users\\신승우\\Desktop\\팀플 테스트 &참고자료\\팀플
 
         for i in range (1, 91):
             m_brand = browser.find_elements(By.XPATH, f"//*[@id='searchList']/li[{i}]/div/div[2]/p[1]/a") # 브랜드 호출
-            m_product = browser.find_elements(By.XPATH, f"//*[@id='searchList']/li[{i}]/div/div[2]/p[2]/a") # 상품 명 호출
+            m_product = browser.find_elements(By.XPATH, f"//*[@id='searchList']/li[{i}]/div/div[2]/p[2]/a") # 상품명 호출
             m_price = browser.find_elements(By.XPATH, f"//*[@id='searchList']/li[{i}]/div/div[2]/p[3]") # 가격 호출
             m_link = browser.find_elements(By.XPATH, f"//*[@id='searchList']/li[{i}]/div/div[1]/a") # 링크 호출
             m_style = "스트릿"
@@ -408,11 +367,9 @@ with open('C:\\Users\\신승우\\Desktop\\팀플 테스트 &참고자료\\팀플
                 discount_price = price_list[1]
             elif len(price_list) == 1:
                 original_price = price_list[0]
-
-            image_path = f"C:\\Users\\신승우\\Desktop\\팀플 테스트 &참고자료\\팀플 테스트\\이미지 테스트\\summer_street_short_sleeved\\{i+k}_{product}.jpg"
         
             # CSV 파일에 쓰기
-            writer.writerow({'브랜드': brand, '제품명': product, '원래 가격': original_price, '할인 가격': discount_price, '스타일': m_style, '계절': m_weather, '링크' : product_link, '이미지 경로' : image_path})
+            writer.writerow({'브랜드': brand, '제품명': product, '원래 가격': original_price, '할인 가격': discount_price, '스타일': m_style, '계절': m_weather, '링크' : product_link})
 
 
             # 프로그램이 정상적으로 작동되는지 확인
@@ -427,13 +384,16 @@ with open('C:\\Users\\신승우\\Desktop\\팀플 테스트 &참고자료\\팀플
             print(discount_price)
             print(m_style)
             print(m_weather)
-            print(product_link)
 
             print("=======================================================")
-    
-        for i in range(1, 91):
-            m_image = browser.find_elements(By.XPATH, f"//*[@id='searchList']/li[{i}]/div/div[1]/a/img") # 이미지 링크 호출
-            image_search()
 
-            # image_resize()
+
+        for i in range (1, 91):
+            m_image = browser.find_elements(By.XPATH, f"//*[@id='searchList']/li[{i}]/div/div[1]/a/img") # 이미지 링크
+
+            # 이미지 저장 및 크기 조정
+            image_search(i, k)
+            image_resize(i, k)
+
+        # 페이지 이동
         k = k + 90
