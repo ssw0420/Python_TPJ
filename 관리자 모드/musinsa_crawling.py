@@ -131,8 +131,8 @@ more_search : 추가 검색
 view_all : 전체 제품 보기
 page_num : 페이지 클릭
 page : 페이지
-sum_page : 총 페이지
 page_input : 페이지 입력
+count_page : 총 페이지 개수 설정
 
 i : for 문 작동
 k : for 문 페이지 식별
@@ -255,31 +255,32 @@ def detail_search_link():
 
 
 # 다음 페이지로 이동하는 함수
-def next_page(page_num, sum_page, search) :
+def next_page(page_num, search, count_page, page_input) :
     try : # 다음 페이지 클릭이 가능한 경우
         # 탐색할 페이지가 한 페이지 목록을 넘지 않는 경우
-        if sum_page == page_num:
-            page_num = 0
-            return page_num
+        if page_input == count_page:
+            browser.close()
+            exit()
         
         if search == 0:
-            page = browser.find_element(By.XPATH, "//*[@id='goodsList']/div[1]/div/div/a[{}]".format(page_num))
-            page.click()
-            time.sleep(2)
+            page = browser.find_element(By.XPATH, "//*[@id='goodsList']/div[1]/div/div/a[{}]".format(page_num)) # 다음 페이지로 이동
+
         elif search == 1:
             page = browser.find_element(By.XPATH, "//*[@id='goods_list']/div[2]/div[1]/div/div/a[{}]".format(page_num)) # 다음 페이지로 이동
-            page.click()
-            time.sleep(2)
-        page_num += 1 # 페이지 숫자 증가
         
+        page.click()
+        time.sleep(2)
+        page_num += 1 # 페이지 숫자 증가
+        count_page += 1 # 현재 페이지 수 카운트 증가
+
         if page_num == 14: # 페이지 10(마지막 페이지)까지 이동 하였을 때 다음 페이지 목록으로 이동
             page_num = 3 # page_num을 3으로 초기화 시킴 (해당 페이지 목록의 1 페이지)
     
     except : # 페이지 목록이 끝까지 이동을 하여 다음 페이지 클릭이 불가능한 경우
-        page_num = 0
-        return page_num
+        browser.close()
+        exit()
     
-    return page_num
+    return page_num, count_page
 
 # 무신사 사이트에서 이미지 파일을 가져올 때는 페이지를 끝까지 내리는 것이 아니라, 특정 부분을 나눠서 내려야 정상적으로 로딩이 됨
 def scroll_page() :
@@ -294,15 +295,15 @@ def image_search(i, k):
     img_src = m_image[0].get_attribute("src") # 이미지 형태로 가져옴
     response = requests.get(img_src)
     # 이미지를 저장할 때는 'byte'로 '작성(w)'해야함 -> wb로 이미지 파일 생성
-    with open(f"C:\\Users\\신승우\\Desktop\\팀플 테스트 &참고자료\\팀플 테스트\\이미지 테스트\\summer_street_short_sleeved\\{i+k}.jpg", "wb") as f:
+    with open(f"C:\\파이썬 1조\\상의 목록\\summer_street_short_sleeved\\{i+k}.jpg", "wb") as f:
         f.write(response.content) #.content를 사용하여 byte 단위의 데이터를 있는 그대로 가져옴
 
 # 이미지 크기 변환
 def image_resize(i, k):
-    img = f"C:\\Users\\신승우\\Desktop\\팀플 테스트 &참고자료\\팀플 테스트\\이미지 테스트\\summer_street_short_sleeved\\{i+k}.jpg"
+    img = f"C:\\파이썬 1조\\상의 목록\\summer_street_short_sleeved\\{i+k}.jpg"
     img_re = Image.open(img).convert('RGB')
     img_re = img_re.resize((125, 150), Image.ANTIALIAS) # 이미지 파일 크기 조정
-    img_re.save(f"C:\\Users\\신승우\\Desktop\\팀플 테스트 &참고자료\\팀플 테스트\\이미지 테스트\\summer_street_short_sleeved\\resize\\{i+k}.jpg")
+    img_re.save(f"C:\\파이썬 1조\\상의 목록\\summer_street_short_sleeved\\resize\\{i+k}.jpg")
 
 
 ##############################################################################################################################
@@ -311,34 +312,31 @@ def image_resize(i, k):
 
 browser = web_crawling()
 page_num, m_index, search = start_m()
-image_folder = 'C:\\Users\\신승우\\Desktop\\팀플 테스트 &참고자료\\팀플 테스트\\이미지 테스트\\summer_street_short_sleeved' # 폴더 설정
+image_folder = 'C:\\파이썬 1조\\상의 목록\\summer_street_short_sleeved' # 폴더 설정
 if not os.path.isdir(image_folder): # 폴더가 존재하는지 확인
     os.mkdir(image_folder) # 존재하지 않으면 해당 폴더 생성
 
-image_resize_folder = 'C:\\Users\\신승우\\Desktop\\팀플 테스트 &참고자료\\팀플 테스트\\이미지 테스트\\summer_street_short_sleeved\\resize' # 폴더 설정
+image_resize_folder = 'C:\\파이썬 1조\\상의 목록\\summer_street_short_sleeved\\resize' # 폴더 설정
 if not os.path.isdir(image_resize_folder): # 폴더가 존재하는지 확인
     os.mkdir(image_resize_folder) # 존재하지 않으면 해당 폴더 생성
 
-csv_folder = 'C:\\Users\\신승우\\Desktop\\팀플 테스트 &참고자료\\팀플 테스트\\CSV 테스트\\crawling_csv' # 폴더 설정
+csv_folder = 'C:\\파이썬 1조\\상의 목록\\csv 파일' # 폴더 설정
 if not os.path.isdir(csv_folder):
     os.mkdir(csv_folder)
 k = 0 # 이미지 저장을 위한 변수
 
 # csv 파일을 생성하거나 열음
-with open('C:\\Users\\신승우\\Desktop\\팀플 테스트 &참고자료\\팀플 테스트\\CSV 테스트\\crawling_csv\\summer_street_short_sleeved.csv', 'w', newline='', encoding='utf-8-sig') as csvfile:
+with open('C:\\파이썬 1조\\상의 목록\\csv 파일\\summer_street_short_sleeved.csv', 'w', newline='', encoding='utf-8-sig') as csvfile:
     field = ['브랜드', '제품명', '원래 가격', '할인 가격', '스타일', '계절', '링크']  # 필드 이름 수정
     writer = csv.DictWriter(csvfile, fieldnames=field)
     writer.writeheader()
 
+    count_page = 1 # 현재 페이지 카운트
     # 페이지 입력
     page_input = int(input("검색할 페이지 수 입력 : "))
-    sum_page = page_num + page_input # 총 페이지
+    page_input += 1
     while(True):
-        page_num = next_page(page_num, sum_page, search) # 페이지 선택 후 다음 페이지로 이동
-
-        if page_num == 0: # 종료
-            browser.close()
-            exit()
+        page_num, count_page = next_page(page_num, search, count_page, page_input) # 페이지 선택 후 다음 페이지로 이동
 
         scroll_page()
 
