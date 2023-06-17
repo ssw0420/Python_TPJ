@@ -295,15 +295,15 @@ def image_search(i, k):
     img_src = m_image[0].get_attribute("src") # 이미지 형태로 가져옴
     response = requests.get(img_src)
     # 이미지를 저장할 때는 'byte'로 '작성(w)'해야함 -> wb로 이미지 파일 생성
-    with open(f"C:\\파이썬 1조\\상의 목록\\summer_street_short_sleeved\\{i+k}.jpg", "wb") as f:
+    with open(f"C:\\파이썬 1조\\하의 목록\\summer_street\\{i+k}.jpg", "wb") as f:
         f.write(response.content) #.content를 사용하여 byte 단위의 데이터를 있는 그대로 가져옴
 
 # 이미지 크기 변환
 def image_resize(i, k):
-    img = f"C:\\파이썬 1조\\상의 목록\\summer_street_short_sleeved\\{i+k}.jpg"
+    img = f"C:\\파이썬 1조\\하의 목록\\summer_street\\{i+k}.jpg"
     img_re = Image.open(img).convert('RGB')
-    img_re = img_re.resize((125, 150), Image.ANTIALIAS) # 이미지 파일 크기 조정
-    img_re.save(f"C:\\파이썬 1조\\상의 목록\\summer_street_short_sleeved\\resize\\{i+k}.jpg")
+    img_re = img_re.resize((125, 150)) # 이미지 파일 크기 조정
+    img_re.save(f"C:\\파이썬 1조\\하의 목록\\summer_street\\resize\\{i+k}.jpg")
 
 
 ##############################################################################################################################
@@ -312,21 +312,21 @@ def image_resize(i, k):
 
 browser = web_crawling()
 page_num, m_index, search = start_m()
-image_folder = 'C:\\파이썬 1조\\상의 목록\\summer_street_short_sleeved' # 폴더 설정
+image_folder = 'C:\\파이썬 1조\\하의 목록\\summer_street' # 폴더 설정
 if not os.path.isdir(image_folder): # 폴더가 존재하는지 확인
     os.mkdir(image_folder) # 존재하지 않으면 해당 폴더 생성
 
-image_resize_folder = 'C:\\파이썬 1조\\상의 목록\\summer_street_short_sleeved\\resize' # 폴더 설정
+image_resize_folder = 'C:\\파이썬 1조\\하의 목록\\summer_street\\resize' # 폴더 설정
 if not os.path.isdir(image_resize_folder): # 폴더가 존재하는지 확인
     os.mkdir(image_resize_folder) # 존재하지 않으면 해당 폴더 생성
 
-csv_folder = 'C:\\파이썬 1조\\상의 목록\\csv 파일' # 폴더 설정
+csv_folder = 'C:\\파이썬 1조\\하의 목록\\csv 파일' # 폴더 설정
 if not os.path.isdir(csv_folder):
     os.mkdir(csv_folder)
 k = 0 # 이미지 저장을 위한 변수
 
 # csv 파일을 생성하거나 열음
-with open('C:\\파이썬 1조\\상의 목록\\csv 파일\\summer_street_short_sleeved.csv', 'w', newline='', encoding='utf-8-sig') as csvfile:
+with open('C:\\파이썬 1조\\하의 목록\\csv 파일\\summer_street.csv', 'w', newline='', encoding='utf-8-sig') as csvfile:
     field = ['브랜드', '제품명', '원래 가격', '할인 가격', '스타일', '계절', '링크']  # 필드 이름 수정
     writer = csv.DictWriter(csvfile, fieldnames=field)
     writer.writeheader()
