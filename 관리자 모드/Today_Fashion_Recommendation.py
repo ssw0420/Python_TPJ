@@ -4,9 +4,11 @@
 import csv  # CSV 파일을 다루기 위한 모듈
 import random  # 임의의 추천을 위한 모듈
 import os  # 파일 및 경로 관리를 위한 모듈
+import webbrowser # 웹 브라우저를 위한 모
 import tkinter as tk  # GUI 개발을 위한 모듈
 from tkinter import scrolledtext, messagebox, Label  # GUI 요소를 사용하기 위한 모듈
 from PIL import ImageTk, Image  # 이미지 처리를 위한 모듈
+
 
 ####################################################### 인터페이스 상의 이미지 출력 구현 함수. 
 def show_high_images(images, recommendations, style, season, max_price_low):
@@ -32,8 +34,6 @@ def show_high_images(images, recommendations, style, season, max_price_low):
     text_label = tk.Label(frame, text="'상품명' 클릭 시 하의 추천", font=("Arial", 12))
     text_label.grid(row=0, column=2, padx=5, pady=5)
 
-    
-    
     # 랜덤한 10개의 상의 이미지와 추천 정보를 화면에 출력
     for idx, row in enumerate(random.sample(images, 10)):
         brand, name, original_price, sale_price, row_style, row_season, link, image_path = row
@@ -45,8 +45,7 @@ def show_high_images(images, recommendations, style, season, max_price_low):
         # 세일가격이 없을 시 원가격으로 설정
         if sale_price == '':
             price = original_price
-        
-            
+         
         # 이미지 로드 및 크기 조정5
         image = Image.open(image_path.strip('"').replace('/', '\\'))  # 이미지 파일 열기
         image = image.resize((150, 150), Image.Resampling.LANCZOS)  # 이미지 크기 조정
@@ -78,37 +77,65 @@ def show_high_images(images, recommendations, style, season, max_price_low):
 
         photo_list.append(photo)
 
+    # 스크롤바와 캔버스 연결
+    canvas.configure(yscrollcommand=scrollbar.set)
     canvas.bind_all("<MouseWheel>", lambda e: canvas.yview_scroll(int(-1 * (e.delta / 120)), "units"))
-
-
 
 ########################################################## 하의 추가 추천 인터페이스 함수 구현
 def show_additional_recommendations(event, recommendation, style, season, max_price_low):
+    low_data = []
 
+    # 스포츠 + 계절
     if style == '스포츠' and season == '봄':
         with open('C:\\파이썬 1조\\하의 목록\\csv파일\\스포츠\\spring_training_low.csv', 'r', encoding='utf-8') as file:
             low_data = list(csv.reader(file))
+            
     elif style == '스포츠' and season == '여름':
         with open('C:\\파이썬 1조\\하의 목록\\csv파일\\스포츠\\summer_training_low.csv', 'r', encoding='utf-8') as file:
             low_data = list(csv.reader(file))
+            
     elif style == '스포츠' and season == '가을':
         with open('C:\\파이썬 1조\\하의 목록\\csv파일\\스포츠\\fall_long_training_low.csv', 'r', encoding='utf-8') as file:
             low_data = list(csv.reader(file))
+            
     elif style == '스포츠' and season == '겨울':
         with open('C:\\파이썬 1조\\하의 목록\\csv파일\\스포츠\\winter_long_training_low.csv', 'r', encoding='utf-8') as file:
             low_data = list(csv.reader(file))
+
+    # 포멀 + 계절
     elif style == '포멀' and season == '봄':
         with open('C:\\파이썬 1조\\하의 목록\\csv파일\\포멀\\spring_formal_low.csv', 'r', encoding='utf-8') as file:
             low_data = list(csv.reader(file))
+            
     elif style == '포멀' and season == '여름':
         with open('C:\\파이썬 1조\\하의 목록\\csv파일\\포멀\\summer_formal_low.csv', 'r', encoding='utf-8') as file:
             low_data = list(csv.reader(file))
+            
     elif style == '포멀' and season == '가을':
         with open('C:\\파이썬 1조\\하의 목록\\csv파일\\포멀\\fall_formal_low.csv', 'r', encoding='utf-8') as file:
             low_data = list(csv.reader(file))
+            
     elif style == '포멀' and season == '겨울':
         with open('C:\\파이썬 1조\\하의 목록\\csv파일\\포멀\\winter_formal_low.csv', 'r', encoding='utf-8') as file:
             low_data = list(csv.reader(file))
+
+    # 캐주얼 + 계절
+    elif style == '캐쥬얼' and season == '봄':
+        with open('C:\\파이썬 1조\\하의 목록\\csv파일\\캐주얼\\spring_casual_low.csv', 'r', encoding='utf-8') as file:
+            low_data = list(csv.reader(file))
+            
+    elif style == '캐쥬얼' and season == '여름':
+        with open('C:\\파이썬 1조\\하의 목록\\csv파일\\캐주얼\\summer_casual_low.csv', 'r', encoding='utf-8') as file:
+            low_data = list(csv.reader(file))
+            
+    elif style == '캐쥬얼' and season == '가을':
+        with open('C:\\파이썬 1조\\하의 목록\\csv파일\\캐주얼\\fall_casual_low.csv', 'r', encoding='utf-8') as file:
+            low_data = list(csv.reader(file))
+            
+    elif style == '캐쥬얼' and season == '겨울':
+        with open('C:\\파이썬 1조\\하의 목록\\csv파일\\캐주얼\\winter_casual_low.csv', 'r', encoding='utf-8') as file:
+            low_data = list(csv.reader(file))
+            
     else:
         messagebox.showinfo("추천 결과", "해당하는 데이터가 없습니다.")
         return
@@ -156,9 +183,6 @@ def show_additional_recommendations(event, recommendation, style, season, max_pr
         # filtered_data와 전체 high_data를 인자로하여 show_images 함수 호출하여 이미지와 추천 정보 출력
         show_low_images(filtered_low_data, low_data)
 
-
-
-
 ################################################ 인터페이스 하의 이미지 출력 함수 구현
 def show_low_images(images, recommendations):
     # tkinter 다중 창 인터페이스 구현. main에 위치한 window tk와 다름.
@@ -191,8 +215,7 @@ def show_low_images(images, recommendations):
         # 세일가격이 없을 시 원가격으로 설정
         if sale_price == '':
             price = original_price
-        
-            
+               
         # 이미지 로드 및 크기 조정5
         image = Image.open(image_path.strip('"').replace('/', '\\'))  # 이미지 파일 열기
         image = image.resize((150, 150), Image.Resampling.LANCZOS)  # 이미지 크기 조정
@@ -219,19 +242,19 @@ def show_low_images(images, recommendations):
         link_button = tk.Button(frame, text="링크", font=("Arial", 12), command=lambda link=link: open_link(link))
         link_button.grid(row=idx+1, column=4, padx=5, pady=5)
 
+    # 스크롤바와 캔버스 연결
+    canvas.configure(yscrollcommand=scrollbar.set)
     canvas.bind_all("<MouseWheel>", lambda e: canvas.yview_scroll(int(-1 * (e.delta / 120)), "units"))
 
+# 링크를 열기 위한 웹브라우저 함수
 def open_link(link):
-    # 링크를 열기 위한 동작 구현
-    pass
-
-
-
+    webbrowser.open(link)
 
 ########################################## 계절, 스타일 (가격과 체형은 자유)을 인터페이스에 입력받는 함수 구현
 def get_recommendation(season, style, max_price_high=None, max_price_low=None, body_type=None):
 
-### 스포츠 + 계절 --> 계절별 또는 스타일별 함수 만들 필요
+    high_data = []
+    ### 스포츠 + 계절 --> 계절별 또는 스타일별 함수 만들 필요
     if style == '스포츠' and season == '봄':
         with open('C:\\파이썬 1조\\상의 목록\\csv파일\\스포츠\\spring_sports_high.csv', 'r', encoding='utf-8') as file:
             high_data = list(csv.reader(file))
@@ -248,8 +271,7 @@ def get_recommendation(season, style, max_price_high=None, max_price_low=None, b
         with open('C:\\파이썬 1조\\상의 목록\\csv파일\\스포츠\\winter_sports_high.csv', 'r', encoding='utf-8') as file:
             high_data = list(csv.reader(file))
 
-
-### 포멀 + 계절
+    ### 포멀 + 계절
     if style == '포멀' and season == '봄':
         with open('C:\\파이썬 1조\\상의 목록\\csv파일\\포멀\\spring_formal_high.csv', 'r', encoding='utf-8') as file:
             high_data = list(csv.reader(file))
@@ -263,16 +285,30 @@ def get_recommendation(season, style, max_price_high=None, max_price_low=None, b
             high_data = list(csv.reader(file))
 
     elif style == '포멀' and season == '겨울':
-        with open('C:\\파이썬 1조\\상의 목록\\csv파일\\포\\winter_formal_high.csv', 'r', encoding='utf-8') as file:
+        with open('C:\\파이썬 1조\\상의 목록\\csv파일\\포멀\\winter_formal_high.csv', 'r', encoding='utf-8') as file:
             high_data = list(csv.reader(file))
 
+    ### 캐주 + 계절
+    if style == '캐쥬얼' and season == '봄':
+        with open('C:\\파이썬 1조\\상의 목록\\csv파일\\캐주얼\\spring_casual_high.csv', 'r', encoding='utf-8') as file:
+            high_data = list(csv.reader(file))
 
+    elif style == '캐쥬얼' and season == '여름':
+        with open('C:\\파이썬 1조\\상의 목록\\csv파일\\캐주얼\\summer_casual_high.csv', 'r', encoding='utf-8') as file:
+            high_data = list(csv.reader(file))
+
+    elif style == '캐쥬얼' and season == '가을':
+        with open('C:\\파이썬 1조\\상의 목록\\csv파일\\캐주얼\\fall_casual_high.csv', 'r', encoding='utf-8') as file:
+            high_data = list(csv.reader(file))
+
+    elif style == '캐쥬얼' and season == '겨울':
+        with open('C:\\파이썬 1조\\상의 목록\\csv파일\\캐주얼\\winter_casual_high.csv', 'r', encoding='utf-8') as file:
+            high_data = list(csv.reader(file))
 
     if not season or not style:  # 계절 또는 스타일이 입력되지 않은 경우
         recommendation_text.delete('1.0', tk.END)  # recommendation_text 텍스트 위젯 초기화
         recommendation_text.insert(tk.END, "계절과 스타일 입력은 필수!")  # 메세지 출력
         return
-
 
     filtered_high_data = []  # 추천된 데이터를 담을 빈 리스트 생성
 
@@ -316,9 +352,6 @@ def get_recommendation(season, style, max_price_high=None, max_price_low=None, b
         # filtered_data와 전체 high_data를 인자로하여 show_high_images 함수 호출하여 이미지와 추천 정보 출력
         show_high_images(filtered_high_data, high_data, style, season, max_price_low)
 
-
-
-
 ################################ 스타일 설명 인터페이스 구현 -> pc 변경 시 파일 경로 변경 필수
 def show_system_description():
     top_level = tk.Toplevel(window)  # (위 코드와 동일) 새 창 생성
@@ -331,13 +364,12 @@ def show_system_description():
 
     scrollbar = tk.Scrollbar(top_level, orient=tk.VERTICAL, command=canvas.yview)  # 스크롤바 생성
     scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
-    canvas.configure(yscrollcommand=scrollbar.set)
-
-    canvas.bind("<Configure>", lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
 
     frame = tk.Frame(canvas)  # 캔버스의 프레임(틀, 공간) 생성
     canvas.create_window((0, 0), window=frame, anchor=tk.NW)
 
+    canvas.configure(yscrollcommand=scrollbar.set)
+    canvas.bind("<Configure>", lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
 
     # 스크롤 가능한 텍스트 위젯 생성
     text_path = "C:\\파이썬 1조\\체형+스타일설명\\설명.txt"  # 설명 텍스트 파일의 경로 설정
@@ -371,11 +403,7 @@ def show_system_description():
         description_text.insert(tk.END, section.strip())  # 섹션 내용을 위젯에 삽입
 
         row_frame.pack(pady=10)  # 프레임을 스크롤 가능한 프레임에 배치
-  
-    
-
-
-
+      
 ################################################################ 체형 설명 인터페이스 구현
 def show_body_type_images():
     top_level = tk.Toplevel(window)  # (위 코드와 동일) 새 창 생성
@@ -411,7 +439,6 @@ def show_body_type_images():
             # 체형 설명 표시를 위한 레이블
             text_label2 = tk.Label(frame, text=description, font=("Arial", 12))
             text_label2.grid(row=idx, column=2, padx=5, pady=5)
-
 
 # 메인 윈도우 창
 window = tk.Tk()
