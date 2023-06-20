@@ -100,7 +100,6 @@ time -> 오류 방지를 위한 대기 시간
 from selenium import webdriver -> 크롬 작동
 os -> 이미지 저장 폴더 설정
 requests -> 이미지 파일 저장
-Image -> 이미지 파일 크기 조정
 """
 ##############################################################################################################################
 
@@ -151,7 +150,6 @@ import time
 import csv
 import os
 import requests
-from PIL import Image
 ##############################################################################################################################
 # 함수 선언
 # 무신사 웹크롤링 프로그램 시작 함수
@@ -273,13 +271,6 @@ def image_search(i, k):
     with open(f"C:\\파이썬 1조\\스트릿\\상의 목록\\summer_street_high\\{i+k}.jpg", "wb") as f:
         f.write(response.content) #.content를 사용하여 byte 단위의 데이터를 있는 그대로 가져옴
 
-# 이미지 크기 변환
-def image_resize(i, k):
-    img = f"C:\\파이썬 1조\\스트릿\\상의 목록\\summer_street_high\\{i+k}.jpg"
-    img_re = Image.open(img).convert('RGB')
-    img_re = img_re.resize((125, 150)) # 이미지 파일 크기 조정
-    img_re.save(f"C:\\파이썬 1조\\스트릿\\상의 목록\\summer_street_high\\resize\\{i+k}.jpg")
-
 ##############################################################################################################################
 # 프로그램 작동
 
@@ -288,10 +279,6 @@ page_num, m_index, search = start_m()
 image_folder = 'C:\\파이썬 1조\\스트릿\\상의 목록\\summer_street_high' # 폴더 설정
 if not os.path.isdir(image_folder): # 폴더가 존재하는지 확인
     os.mkdir(image_folder) # 존재하지 않으면 해당 폴더 생성
-
-image_resize_folder = 'C:\\파이썬 1조\\스트릿\\상의 목록\\summer_street_high\\resize' # 폴더 설정
-if not os.path.isdir(image_resize_folder): # 폴더가 존재하는지 확인
-    os.mkdir(image_resize_folder) # 존재하지 않으면 해당 폴더 생성
 
 csv_folder = 'C:\\파이썬 1조\\스트릿\\상의 목록\\csv 파일' # 폴더 설정
 if not os.path.isdir(csv_folder):
@@ -362,9 +349,8 @@ with open('C:\\파이썬 1조\\스트릿\\상의 목록\\csv 파일\\summer_stre
         for i in range (1, 91):
             m_image = browser.find_elements(By.XPATH, f"//*[@id='searchList']/li[{i}]/div/div[1]/a/img") # 이미지 링크
 
-            # 이미지 저장 및 크기 조정
+            # 이미지 저장
             image_search(i, k)
-            image_resize(i, k)
 
         # 페이지 이동
         k = k + 90
