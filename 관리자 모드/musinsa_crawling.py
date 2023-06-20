@@ -31,8 +31,6 @@
 --- 스포츠 ---
 스포츠 상의 : https://www.musinsa.com/categories/item/017016
 스포츠 하의 : https://www.musinsa.com/categories/item/017020
-
-
 """
 ##############################################################################################################################
 ##############################################################################################################################
@@ -65,7 +63,6 @@
 	포멀 : 겨울,포멀,긴소매,셔츠 + 겨울,포멀,긴소매,터틀넥 + 니트,포멀,긴소매
 	스포츠 : 스포츠,아노락 + 스포츠,스웻셔츠,긴소매 
 
-
 하의
 	봄
 	스트릿 : 여름,스트릿
@@ -90,20 +87,12 @@
 	캐주얼 : 겨울,캐주얼
 	포멀 : 치노,포멀,긴바지 + 슬렉스,포멀,긴바지 + 데님,포멀,긴바지
 	스포츠 : 트레이닝,긴바지
-
-
 """
 ##############################################################################################################################
 
 ##############################################################################################################################
 """
---- 참고 내용 ---
-
-usf-8에서 excel로 csv파일 확인 시 한글이 깨지면 encoding 할 때 utf-8-sig 사용
-
-
 --- 라이브러리 호출 ---
-
 csv -> csv 파일 활용
 from selenium.webdriver.common.by import By -> 정보를 가져오기 위함
 from selenium.webdriver.common.keys import Keys -> 키 작동을 위함
@@ -118,7 +107,6 @@ Image -> 이미지 파일 크기 조정
 ##############################################################################################################################
 """
 --- 변수 명 ---
-
 image_folder, image_resize_folder, csv_folder : 경로 설정
 browser : 크롤링 링크 지정
 page : 웹 사이트 페이지 변화
@@ -133,10 +121,8 @@ page_num : 페이지 클릭
 page : 페이지
 page_input : 페이지 입력
 count_page : 총 페이지 개수 설정
-
 i : for 문 작동
 k : for 문 페이지 식별
-
 m_index : 고유 번호 (0)
 m_product : 제품 명 (베츠 어센틱 맨투맨 그레이)
 m_brand : 브랜드 명 (이벳필드)
@@ -148,17 +134,12 @@ m_link : 링크 호출
 product_link : 제품 상세 링크
 original_price : 원래 가격
 discount_price : 할인 가격
-
-
 brand : 브랜드 정보 저장
 product : 제품 정보 저장
 price_text : 가격 정보 저장
 price_list : 가격 정보 분리
-
-
 field : 행 이름
 writer : csv 작성
-
 
 """
 ##############################################################################################################################
@@ -171,10 +152,9 @@ import csv
 import os
 import requests
 from PIL import Image
-
 ##############################################################################################################################
 # 함수 선언
- # 무신사 웹크롤링 프로그램 시작 함수
+# 무신사 웹크롤링 프로그램 시작 함수
 def web_crawling() :
     
     URL = input("링크 입력 : ") # 프로그램 상단에 표시된 URL 찾아서 입력
@@ -191,7 +171,6 @@ def web_crawling() :
     time.sleep(2)
 
     return browser
-
 
 def start_m():
     # 프로그램 작동
@@ -239,9 +218,6 @@ def all_search_link():
     view_all.click()
     time.sleep(2)
 
-
-
-
 # 상세 검색창 이용 함수
 # 함수 이용시 특정 종류의 제품들이 나열된 링크에서 이용
 def detail_search_link():
@@ -252,7 +228,6 @@ def detail_search_link():
     detail_search.send_keys(input("상세 검색창에 검색할 내용 입력 : "))
     detail_search.send_keys(Keys.ENTER)
     time.sleep(2)
-
 
 # 다음 페이지로 이동하는 함수
 def next_page(page_num, search, count_page, page_input) :
@@ -295,38 +270,36 @@ def image_search(i, k):
     img_src = m_image[0].get_attribute("src") # 이미지 형태로 가져옴
     response = requests.get(img_src)
     # 이미지를 저장할 때는 'byte'로 '작성(w)'해야함 -> wb로 이미지 파일 생성
-    with open(f"C:\\파이썬 1조\\하의 목록\\summer_street\\{i+k}.jpg", "wb") as f:
+    with open(f"C:\\파이썬 1조\\스트릿\\상의 목록\\summer_street_high\\{i+k}.jpg", "wb") as f:
         f.write(response.content) #.content를 사용하여 byte 단위의 데이터를 있는 그대로 가져옴
 
 # 이미지 크기 변환
 def image_resize(i, k):
-    img = f"C:\\파이썬 1조\\하의 목록\\summer_street\\{i+k}.jpg"
+    img = f"C:\\파이썬 1조\\스트릿\\상의 목록\\summer_street_high\\{i+k}.jpg"
     img_re = Image.open(img).convert('RGB')
     img_re = img_re.resize((125, 150)) # 이미지 파일 크기 조정
-    img_re.save(f"C:\\파이썬 1조\\하의 목록\\summer_street\\resize\\{i+k}.jpg")
-
+    img_re.save(f"C:\\파이썬 1조\\스트릿\\상의 목록\\summer_street_high\\resize\\{i+k}.jpg")
 
 ##############################################################################################################################
 # 프로그램 작동
-# 여름 스트릿 코드
 
 browser = web_crawling()
 page_num, m_index, search = start_m()
-image_folder = 'C:\\파이썬 1조\\하의 목록\\summer_street' # 폴더 설정
+image_folder = 'C:\\파이썬 1조\\스트릿\\상의 목록\\summer_street_high' # 폴더 설정
 if not os.path.isdir(image_folder): # 폴더가 존재하는지 확인
     os.mkdir(image_folder) # 존재하지 않으면 해당 폴더 생성
 
-image_resize_folder = 'C:\\파이썬 1조\\하의 목록\\summer_street\\resize' # 폴더 설정
+image_resize_folder = 'C:\\파이썬 1조\\스트릿\\상의 목록\\summer_street_high\\resize' # 폴더 설정
 if not os.path.isdir(image_resize_folder): # 폴더가 존재하는지 확인
     os.mkdir(image_resize_folder) # 존재하지 않으면 해당 폴더 생성
 
-csv_folder = 'C:\\파이썬 1조\\하의 목록\\csv 파일' # 폴더 설정
+csv_folder = 'C:\\파이썬 1조\\스트릿\\상의 목록\\csv 파일' # 폴더 설정
 if not os.path.isdir(csv_folder):
     os.mkdir(csv_folder)
 k = 0 # 이미지 저장을 위한 변수
 
 # csv 파일을 생성하거나 열음
-with open('C:\\파이썬 1조\\하의 목록\\csv 파일\\summer_street.csv', 'w', newline='', encoding='utf-8-sig') as csvfile:
+with open('C:\\파이썬 1조\\스트릿\\상의 목록\\csv 파일\\summer_street_high.csv', 'w', newline='', encoding='utf-8-sig') as csvfile:
     field = ['브랜드', '제품명', '원래 가격', '할인 가격', '스타일', '계절', '링크']  # 필드 이름 수정
     writer = csv.DictWriter(csvfile, fieldnames=field)
     writer.writeheader()
