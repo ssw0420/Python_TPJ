@@ -135,6 +135,23 @@ def show_additional_recommendations(event, recommendation, style, season, max_pr
     elif style == '캐쥬얼' and season == '겨울':
         with open('C:\\파이썬 1조\\하의 목록\\csv파일\\캐주얼\\winter_casual_low.csv', 'r', encoding='utf-8') as file:
             low_data = list(csv.reader(file))
+
+    # 스트릿 + 계절
+    elif style == '스트릿' and season == '봄':
+        with open('C:\\파이썬 1조\\스트릿\\하의 목록\\csv파일\\spring_street_low.csv', 'r', encoding='utf-8') as file:
+            low_data = list(csv.reader(file))
+            
+    elif style == '스트릿' and season == '여름':
+        with open('C:\\파이썬 1조\\스트릿\\하의 목록\\csv파일\\summer_street_low.csv', 'r', encoding='utf-8') as file:
+            low_data = list(csv.reader(file))
+            
+    elif style == '스트릿' and season == '가을':
+        with open('C:\\파이썬 1조\\스트릿\\하의 목록\\csv파일\\fall_street_low.csv', 'r', encoding='utf-8') as file:
+            low_data = list(csv.reader(file))
+            
+    elif style == '스트릿' and season == '겨울':
+        with open('C:\\파이썬 1조\\스트릿\\하의 목록\\csv파일\\winter_street_low.csv', 'r', encoding='utf-8') as file:
+            low_data = list(csv.reader(file))
             
     else:
         messagebox.showinfo("추천 결과", "해당하는 데이터가 없습니다.")
@@ -304,6 +321,22 @@ def get_recommendation(season, style, max_price_high=None, max_price_low=None, b
     elif style == '캐쥬얼' and season == '겨울':
         with open('C:\\파이썬 1조\\상의 목록\\csv파일\\캐주얼\\winter_casual_high.csv', 'r', encoding='utf-8') as file:
             high_data = list(csv.reader(file))
+    ### 스트릿 + 계절
+    if style == '스트릿' and season == '봄':
+        with open('C:\\파이썬 1조\\스트릿\\상의 목록\\csv파일\\spring_street_high.csv', 'r', encoding='utf-8') as file:
+            high_data = list(csv.reader(file))
+
+    elif style == '스트릿' and season == '여름':
+        with open('C:\\파이썬 1조\\스트릿\\상의 목록\\csv파일\\summer_street_high.csv', 'r', encoding='utf-8') as file:
+            high_data = list(csv.reader(file))
+
+    elif style == '스트릿' and season == '가을':
+        with open('C:\\파이썬 1조\\스트릿\\상의 목록\\csv파일\\fall_street_high.csv', 'r', encoding='utf-8') as file:
+            high_data = list(csv.reader(file))
+
+    elif style == '스트릿' and season == '겨울':
+        with open('C:\\파이썬 1조\\스트릿\\상의 목록\\csv파일\\winter_street_high.csv', 'r', encoding='utf-8') as file:
+            high_data = list(csv.reader(file))
 
     if not season or not style:  # 계절 또는 스타일이 입력되지 않은 경우
         recommendation_text.delete('1.0', tk.END)  # recommendation_text 텍스트 위젯 초기화
@@ -355,7 +388,7 @@ def get_recommendation(season, style, max_price_high=None, max_price_low=None, b
 ################################ 스타일 설명 인터페이스 구현 -> pc 변경 시 파일 경로 변경 필수
 def show_system_description():
     top_level = tk.Toplevel(window)  # (위 코드와 동일) 새 창 생성
-    top_level.title("시스템 설명")  # 창 제목 설정
+    top_level.title("스타일 설명")  # 창 제목 설정
     top_level.geometry("800x600")  # 창 크기 설정
 
     # 스크롤 가능한 프레임 생성
